@@ -189,7 +189,7 @@
         </div>
       </div>
 
-      <!-- Periods Grid (1 to 6) -->
+      <!-- Periods Grid (1 to 5) -->
       <div id="timetableRows" class="flex flex-col gap-1.5 sm:gap-2 flex-1">
         <!-- Dynamically generated rows -->
       </div>
@@ -616,14 +616,13 @@
   </div>
 
   <script>
-    // --- DEFAULT PERIODS (熊大標準) ---
+    // --- DEFAULT PERIODS (熊大標準 1~5限) ---
     const DEFAULT_PERIODS = [
       { num: 1, start: '08:45', end: '10:15' },
       { num: 2, start: '10:30', end: '12:00' },
       { num: 3, start: '13:00', end: '14:30' },
       { num: 4, start: '14:45', end: '16:15' },
-      { num: 5, start: '16:30', end: '18:00' },
-      { num: 6, start: '18:15', end: '19:45' }
+      { num: 5, start: '16:30', end: '18:00' }
     ];
 
     const DAYS = ['月', '火', '水', '木', '金'];
@@ -747,7 +746,7 @@
     }
 
     function getCurrentPeriods() {
-      if (Array.isArray(appState.periods) && appState.periods.length === 6) {
+      if (Array.isArray(appState.periods) && appState.periods.length === 5) {
         return appState.periods;
       }
       return DEFAULT_PERIODS;
@@ -894,7 +893,7 @@
         return;
       }
 
-      if (!Array.isArray(appState.periods) || appState.periods.length !== 6) {
+      if (!Array.isArray(appState.periods) || appState.periods.length !== 5) {
         appState.periods = JSON.parse(JSON.stringify(DEFAULT_PERIODS));
       }
 
@@ -1306,11 +1305,15 @@
         const val = document.getElementById('backupTextarea').value.trim();
         const parsed = JSON.parse(val);
         if (parsed && typeof parsed === 'object') {
+          let loadedPeriods = DEFAULT_PERIODS;
+          if (Array.isArray(parsed.periods)) {
+            loadedPeriods = parsed.periods.slice(0, 5);
+          }
           appState = {
             term: parsed.term || "時間割",
             classes: parsed.classes || {},
             subjectUrls: parsed.subjectUrls || {},
-            periods: Array.isArray(parsed.periods) ? parsed.periods : JSON.parse(JSON.stringify(DEFAULT_PERIODS))
+            periods: loadedPeriods
           };
           saveToStorage();
           renderTimetable();
@@ -1355,11 +1358,15 @@
         if (raw) {
           const parsed = JSON.parse(raw);
           if (parsed && typeof parsed === 'object') {
+            let loadedPeriods = DEFAULT_PERIODS;
+            if (Array.isArray(parsed.periods)) {
+              loadedPeriods = parsed.periods.slice(0, 5);
+            }
             appState = {
               term: parsed.term || "時間割",
               classes: parsed.classes || {},
               subjectUrls: parsed.subjectUrls || {},
-              periods: Array.isArray(parsed.periods) ? parsed.periods : JSON.parse(JSON.stringify(DEFAULT_PERIODS))
+              periods: loadedPeriods
             };
           }
         }
