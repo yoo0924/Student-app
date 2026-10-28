@@ -38,13 +38,13 @@
     }
     .timetable-grid {
       display: grid;
-      grid-template-columns: 46px repeat(5, minmax(0, 1fr));
+      grid-template-columns: 50px repeat(5, minmax(0, 1fr));
       gap: 6px;
     }
     @media (min-width: 640px) {
       .timetable-grid {
         gap: 8px;
-        grid-template-columns: 56px repeat(5, minmax(0, 1fr));
+        grid-template-columns: 58px repeat(5, minmax(0, 1fr));
       }
     }
     .card-touch {
@@ -53,7 +53,6 @@
     .card-touch:active {
       transform: scale(0.97);
     }
-    /* 横スクロール可能なタグコンテナ用のスクロールバー非表示 */
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
@@ -103,7 +102,7 @@
       <div class="flex items-baseline justify-between mt-1">
         <div>
           <h1 id="termTitleDisplay" class="text-lg font-bold text-slate-800 tracking-tight">時間割</h1>
-          <p class="text-[11px] text-slate-400 mt-0.5">タップでMoodleへ直行。「コマ編集」から授業を追加できます。</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">タップでMoodleへ直行。「コマ編集」から授業や時限の時間を変更できます。</p>
         </div>
         <button type="button" onclick="openTermNameModal()" class="text-[11px] text-slate-400 hover:text-slate-600 underline">学期名変更</button>
       </div>
@@ -124,7 +123,7 @@
     <div id="editModeBanner" class="hidden bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-800 flex items-center justify-between">
       <div class="flex items-center gap-1.5">
         <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-        <span class="font-bold">編集モード中:</span> 各コマをタップして授業名・教室・Moodle URLを登録・編集できます
+        <span class="font-bold">編集モード中:</span> コマをタップして授業編集 / 左端をタップして時間変更
       </div>
       <button type="button" onclick="toggleEditMode()" class="text-amber-900 font-bold underline">完了</button>
     </div>
@@ -198,7 +197,7 @@
     </div>
   </nav>
 
-  <!-- MODAL: Class Edit & URL Configuration (With Copy-Existing-Class Feature) -->
+  <!-- MODAL: Class Edit & URL Configuration -->
   <div id="classModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl overflow-hidden border border-slate-100 p-5 space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -258,6 +257,41 @@
     </div>
   </div>
 
+  <!-- MODAL: Period Time Edit (時限の時間編集モーダル) -->
+  <div id="periodModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-xs rounded-2xl shadow-xl overflow-hidden border border-slate-100 p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <span id="periodModalNumBadge" class="w-7 h-7 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-xs">
+            1
+          </span>
+          <h3 id="periodModalTitle" class="text-sm font-bold text-slate-800">1限の時間設定</h3>
+        </div>
+        <button type="button" onclick="closePeriodModal()" class="text-slate-400 hover:text-slate-600">✕</button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">開始時間</label>
+          <input id="inputPeriodStart" type="time" class="w-full text-sm font-mono bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:border-brand-500 focus:outline-none transition">
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">終了時間</label>
+          <input id="inputPeriodEnd" type="time" class="w-full text-sm font-mono bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:border-brand-500 focus:outline-none transition">
+        </div>
+      </div>
+
+      <div class="space-y-2 pt-1">
+        <button type="button" onclick="savePeriodModal()" class="w-full py-2.5 rounded-xl bg-brand-600 text-white text-xs font-bold hover:bg-brand-700 transition shadow-sm">
+          時間を保存
+        </button>
+        <button type="button" onclick="resetSinglePeriodDefault()" class="w-full py-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 text-xs font-semibold transition">
+          標準時間に戻す
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: Usage / Help -->
   <div id="helpModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl overflow-hidden border border-slate-100 p-5 space-y-4">
@@ -278,15 +312,19 @@
         </div>
         <div class="flex gap-2">
           <span class="font-bold text-brand-600 shrink-0">2.</span>
-          <div><strong class="text-slate-800">登録済みから複製：</strong>別のコマに同じ授業を登録したい時は、編集画面上部の「登録済みからワンタップ複製」タグを押すだけで全項目が自動入力されます。</div>
+          <div><strong class="text-slate-800">授業時間の変更：</strong>「コマ編集」モード中に左端の時限枠（1限、2限...）をタップすると、開始・終了時間を自由に変更できます。</div>
         </div>
         <div class="flex gap-2">
           <span class="font-bold text-brand-600 shrink-0">3.</span>
-          <div><strong class="text-slate-800">ワンタップで直行：</strong>登録完了後はコマをタップするだけで、その講義のMoodleページが即座に開きます。</div>
+          <div><strong class="text-slate-800">登録済みから複製：</strong>別のコマに同じ授業を登録したい時は、編集画面上部の「ワンタップ複製」タグを押すだけで全項目が自動入力されます。</div>
         </div>
         <div class="flex gap-2">
           <span class="font-bold text-brand-600 shrink-0">4.</span>
-          <div><strong class="text-slate-800">友人に共有：</strong>下部の「時間割を共有」リンクを送れば、友人のスマホにも同じ時間割とURL設定を丸ごとコピーできます。</div>
+          <div><strong class="text-slate-800">ワンタップで直行：</strong>登録完了後はコマをタップするだけで、その講義のMoodleページが即座に開きます。</div>
+        </div>
+        <div class="flex gap-2">
+          <span class="font-bold text-brand-600 shrink-0">5.</span>
+          <div><strong class="text-slate-800">友人に共有：</strong>下部の「時間割を共有」リンクを送れば、友人のスマホにも時間割・授業時間・URL設定を丸ごと共有できます。</div>
         </div>
       </div>
 
@@ -315,7 +353,7 @@
       </div>
 
       <p class="text-xs text-slate-600 leading-relaxed">
-        作成した時間割とMoodleのURL設定がすべてこのリンクに含まれています。受け取った人はリンクを開くだけで即座に反映されます。
+        作成した時間割・授業時間・MoodleのURL設定がすべてこのリンクに含まれています。受け取った人はリンクを開くだけで即座に反映されます。
       </p>
 
       <div class="space-y-1.5">
@@ -381,7 +419,7 @@
   <div id="resetModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="bg-white w-full max-w-xs rounded-2xl shadow-xl overflow-hidden border border-slate-100 p-5 space-y-3">
       <h3 class="text-sm font-bold text-slate-800">初期化の確認</h3>
-      <p class="text-xs text-slate-500">時間割の全データを初期状態（空の時間割）にリセットしますか？</p>
+      <p class="text-xs text-slate-500">時間割の全データ（講義情報・時間設定）を初期状態にリセットしますか？</p>
       <div class="flex gap-2 pt-1">
         <button type="button" onclick="closeResetModal()" class="flex-1 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold">キャンセル</button>
         <button type="button" onclick="confirmReset()" class="flex-1 py-2 rounded-xl bg-rose-600 text-white text-xs font-bold">初期化する</button>
@@ -395,8 +433,8 @@
   </div>
 
   <script>
-    // --- TIMETABLE CONFIGURATION ---
-    const PERIODS = [
+    // --- DEFAULT PERIODS (熊大標準) ---
+    const DEFAULT_PERIODS = [
       { num: 1, start: '08:45', end: '10:15' },
       { num: 2, start: '10:30', end: '12:00' },
       { num: 3, start: '13:00', end: '14:30' },
@@ -408,11 +446,12 @@
     const DAYS = ['月', '火', '水', '木', '金'];
     const DAY_NAMES_JA = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
 
-    // 初期状態は完全に空の時間割
+    // 初期状態: 空の時間割 & 標準時限
     const DEFAULT_TIMETABLE = {
       term: "時間割",
       classes: {},
-      subjectUrls: {}
+      subjectUrls: {},
+      periods: JSON.parse(JSON.stringify(DEFAULT_PERIODS))
     };
 
     // 永続化キー
@@ -422,6 +461,7 @@
     let appState = JSON.parse(JSON.stringify(DEFAULT_TIMETABLE));
     let isEditMode = false;
     let activeSlotKey = null;
+    let activePeriodIndex = null;
 
     // --- INITIALIZATION ---
     window.addEventListener('DOMContentLoaded', () => {
@@ -468,6 +508,14 @@
       window._currentTodayIdx = dayIdx;
     }
 
+    // --- HELPER: GET CURRENT PERIODS ---
+    function getCurrentPeriods() {
+      if (Array.isArray(appState.periods) && appState.periods.length === 6) {
+        return appState.periods;
+      }
+      return DEFAULT_PERIODS;
+    }
+
     // --- TIMETABLE RENDERING ---
     function renderTimetable() {
       const termTitle = document.getElementById('termTitleDisplay');
@@ -480,16 +528,28 @@
       container.innerHTML = '';
 
       const todayIdx = window._currentTodayIdx;
+      const periods = getCurrentPeriods();
 
-      PERIODS.forEach((p, pIdx) => {
+      periods.forEach((p, pIdx) => {
         const row = document.createElement('div');
         row.className = 'timetable-grid flex-1 min-h-[92px] sm:min-h-[104px]';
 
-        // Time / Period Column
-        const timeCol = document.createElement('div');
-        timeCol.className = 'flex flex-col items-center justify-center text-center select-none pr-1';
+        // Time / Period Column (Editable in Edit Mode)
+        const timeCol = document.createElement('button');
+        timeCol.type = 'button';
+        timeCol.onclick = () => onPeriodClick(pIdx);
+        
+        let timeColClasses = 'flex flex-col items-center justify-center text-center select-none pr-1 rounded-xl transition ';
+        if (isEditMode) {
+          timeColClasses += 'hover:bg-amber-100/60 border border-dashed border-amber-300 cursor-pointer relative';
+        } else {
+          timeColClasses += 'cursor-default border border-transparent';
+        }
+        timeCol.className = timeColClasses;
+
         timeCol.innerHTML = `
-          <span class="text-sm sm:text-base font-bold text-slate-700 leading-tight">${p.num}</span>
+          ${isEditMode ? '<span class="text-[9px] font-bold text-amber-600 leading-none mb-0.5">時間変更</span>' : ''}
+          <span class="text-sm sm:text-base font-bold ${isEditMode ? 'text-amber-800' : 'text-slate-700'} leading-tight">${p.num}</span>
           <span class="text-[9px] sm:text-[10px] text-slate-400 font-medium leading-none mt-1">${p.start}</span>
           <span class="text-[8px] text-slate-300 my-0.5">|</span>
           <span class="text-[9px] sm:text-[10px] text-slate-400 font-medium leading-none">${p.end}</span>
@@ -559,6 +619,71 @@
       return appState.subjectUrls[subjectName.trim()] || '';
     }
 
+    // --- PERIOD TIME EDIT INTERACTION ---
+    function onPeriodClick(pIdx) {
+      if (!isEditMode) {
+        // コマ編集モード以外でタップされた場合は編集モードへの移行を促すか、そのまま編集可能にする
+        openPeriodModal(pIdx);
+        return;
+      }
+      openPeriodModal(pIdx);
+    }
+
+    function openPeriodModal(pIdx) {
+      activePeriodIndex = pIdx;
+      const periods = getCurrentPeriods();
+      const target = periods[pIdx] || DEFAULT_PERIODS[pIdx];
+
+      document.getElementById('periodModalNumBadge').textContent = target.num;
+      document.getElementById('periodModalTitle').textContent = `${target.num}限の時間設定`;
+      document.getElementById('inputPeriodStart').value = target.start || '';
+      document.getElementById('inputPeriodEnd').value = target.end || '';
+
+      const modal = document.getElementById('periodModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closePeriodModal() {
+      const modal = document.getElementById('periodModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+      activePeriodIndex = null;
+    }
+
+    function savePeriodModal() {
+      if (activePeriodIndex === null) return;
+      const start = document.getElementById('inputPeriodStart').value;
+      const end = document.getElementById('inputPeriodEnd').value;
+
+      if (!start || !end) {
+        showToast('開始時間と終了時間を入力してください');
+        return;
+      }
+
+      if (!Array.isArray(appState.periods) || appState.periods.length !== 6) {
+        appState.periods = JSON.parse(JSON.stringify(DEFAULT_PERIODS));
+      }
+
+      appState.periods[activePeriodIndex].start = start;
+      appState.periods[activePeriodIndex].end = end;
+
+      saveToStorage();
+      renderTimetable();
+      closePeriodModal();
+      showToast(`${appState.periods[activePeriodIndex].num}限の時間を更新しました`);
+    }
+
+    function resetSinglePeriodDefault() {
+      if (activePeriodIndex === null) return;
+      const def = DEFAULT_PERIODS[activePeriodIndex];
+      document.getElementById('inputPeriodStart').value = def.start;
+      document.getElementById('inputPeriodEnd').value = def.end;
+      savePeriodModal();
+    }
+
     // --- SLOT INTERACTION ---
     function onSlotClick(dIdx, pIdx) {
       const key = `${dIdx}-${pIdx}`;
@@ -571,7 +696,7 @@
 
       // Normal Mode
       if (!item || !item.subject) {
-        // 空きコマをタップした場合は案内し、編集モーダルを開く
+        // 空きコマをタップした場合は編集モーダルを開く
         openClassModal(dIdx, pIdx, false);
         return;
       }
@@ -590,14 +715,14 @@
     function openClassModal(dIdx, pIdx, missingPrompt) {
       activeSlotKey = `${dIdx}-${pIdx}`;
       const item = (appState.classes && appState.classes[activeSlotKey]) ? appState.classes[activeSlotKey] : { subject: '', room: '' };
-      const period = PERIODS[pIdx];
+      const periods = getCurrentPeriods();
+      const period = periods[pIdx] || DEFAULT_PERIODS[pIdx];
 
       document.getElementById('modalSlotHeader').textContent = `${DAYS[dIdx]}曜 ${period.num}限 (${period.start}~${period.end})`;
       document.getElementById('inputSubject').value = item.subject || '';
       document.getElementById('inputRoom').value = item.room || '';
       document.getElementById('inputUrl').value = getUrlForSubject(item.subject);
 
-      // Render Existing Classes Quick-Copy Tags
       renderExistingClassesQuickTags();
 
       const prompt = document.getElementById('modalMissingPrompt');
@@ -630,13 +755,11 @@
 
       listContainer.innerHTML = '';
 
-      // Collect unique subjects already present in classes
       const registeredMap = new Map();
       if (appState.classes) {
         Object.entries(appState.classes).forEach(([slot, c]) => {
           if (c && c.subject && c.subject.trim() !== '') {
             const sub = c.subject.trim();
-            // Store the first encountered room and url for this subject
             if (!registeredMap.has(sub)) {
               registeredMap.set(sub, {
                 subject: sub,
@@ -795,7 +918,8 @@
           appState = {
             term: parsed.term || "時間割",
             classes: parsed.classes || {},
-            subjectUrls: parsed.subjectUrls || {}
+            subjectUrls: parsed.subjectUrls || {},
+            periods: Array.isArray(parsed.periods) ? parsed.periods : JSON.parse(JSON.stringify(DEFAULT_PERIODS))
           };
           saveToStorage();
           history.replaceState(null, '', window.location.pathname);
@@ -946,7 +1070,8 @@
           appState = {
             term: parsed.term || "時間割",
             classes: parsed.classes || {},
-            subjectUrls: parsed.subjectUrls || {}
+            subjectUrls: parsed.subjectUrls || {},
+            periods: Array.isArray(parsed.periods) ? parsed.periods : JSON.parse(JSON.stringify(DEFAULT_PERIODS))
           };
           saveToStorage();
           renderTimetable();
@@ -975,7 +1100,8 @@
       appState = {
         term: "時間割",
         classes: {},
-        subjectUrls: {}
+        subjectUrls: {},
+        periods: JSON.parse(JSON.stringify(DEFAULT_PERIODS))
       };
       saveToStorage();
       renderTimetable();
@@ -993,7 +1119,8 @@
             appState = {
               term: parsed.term || "時間割",
               classes: parsed.classes || {},
-              subjectUrls: parsed.subjectUrls || {}
+              subjectUrls: parsed.subjectUrls || {},
+              periods: Array.isArray(parsed.periods) ? parsed.periods : JSON.parse(JSON.stringify(DEFAULT_PERIODS))
             };
           }
         }
