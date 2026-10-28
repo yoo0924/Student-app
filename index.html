@@ -107,7 +107,7 @@
               <svg id="editIcon" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
-              <span id="editBtnText" class="text-[11px]">編集</span>
+              <span id="editBtnText" class="text-[11px]">コマ編集</span>
             </button>
           </div>
 
@@ -141,7 +141,7 @@
       <div class="flex items-baseline justify-between mt-1">
         <div>
           <h1 id="termTitleDisplay" class="text-lg font-bold text-slate-800 tracking-tight">時間割</h1>
-          <p id="headerSubtitle" class="text-[11px] text-slate-400 mt-0.5">タップでMoodleへ直行。「編集」から授業や時限の時間を変更できます。</p>
+          <p id="headerSubtitle" class="text-[11px] text-slate-400 mt-0.5">タップでMoodleへ直行。「コマ編集」から授業や時限の時間を変更できます。</p>
         </div>
         <button type="button" id="btnChangeTermName" onclick="openTermNameModal()" class="text-[11px] text-slate-400 hover:text-slate-600 underline">学期名変更</button>
       </div>
@@ -199,6 +199,7 @@
     <main id="viewTasks" class="hidden flex-1 px-4 sm:px-6 pt-4 pb-6 flex flex-col">
       <div class="flex items-center justify-between mb-3 text-xs text-slate-400">
         <span id="taskStatsLabel">未完了 0件</span>
+        <span class="text-[11px]">期限順に自動ソート</span>
       </div>
       <!-- Task List Container -->
       <div id="taskListContainer" class="space-y-2.5 flex-1 overflow-y-auto no-scrollbar">
@@ -314,9 +315,10 @@
       <div class="space-y-3 text-xs text-slate-600 leading-relaxed">
         <div class="p-3 bg-brand-50/70 border border-brand-200/70 rounded-xl text-slate-700">
           <strong class="text-brand-900 block mb-1">🔗 授業・Moodleとの直通連携</strong>
-          時間割にある授業を選択してタスクを作成すると、タスク一覧の右端に<strong>「Moodleボタン」</strong>が表示され、1タップでその講義ページへ飛べます。
+          時間割にある授業を選択してタスクを作成すると、タスク一覧の右端に<strong>「Moodleボタン」</strong>が表示され、1タップですぐにその講義ページへ飛べます。
         </div>
         <div class="space-y-1.5 pl-1">
+          <p><strong>1. 自動並び替え:</strong> 提出期限が近いものが自動的に上段に表示されます。</p>
           <p><strong>2. 完了チェック:</strong> チェックをつけると取り消し線が引かれ、未完了リストの下段へ整列します。</p>
           <p><strong>3. ゴミ箱ボタン:</strong> 上部のゴミ箱ボタンを押すと、完了済みタスクだけを一括消去できます。</p>
         </div>
@@ -330,7 +332,7 @@
 
   <!-- ==================== EXISTING TIMETABLE MODALS ==================== -->
 
-  <!-- MODAL: Class Edit & URL Configuration -->
+  <!-- MODAL: Class Edit & URL Configuration (With Attribute Badge) -->
   <div id="classModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl overflow-hidden border border-slate-100 p-5 space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -369,6 +371,24 @@
           <label class="block text-[11px] font-bold text-slate-600 mb-1">Moodle URL</label>
           <input id="inputUrl" type="url" placeholder="https://md.kumamoto-u.ac.jp/course/view.php?id=..." class="w-full text-xs font-mono bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:border-brand-500 focus:outline-none transition">
           <p class="text-[10px] text-slate-400 mt-1">※同じ教科名のコマには自動で共通適用されます</p>
+        </div>
+
+        <!-- Attribute Badge Selection (Placed right under Moodle URL) -->
+        <div class="pt-1 border-t border-slate-100">
+          <label class="block text-[11px] font-bold text-slate-600 mb-1.5">属性マーク (コマの左上に表示)</label>
+          <div class="flex flex-wrap gap-1.5 mb-2">
+            <button type="button" onclick="selectBadgeQuick('')" class="badge-opt-btn px-2.5 py-1 rounded-lg text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 font-medium transition" data-badge="">なし</button>
+            <button type="button" onclick="selectBadgeQuick('💻')" class="badge-opt-btn px-2.5 py-1 rounded-lg text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition" data-badge="💻">💻 パソコン必須</button>
+            <button type="button" onclick="selectBadgeQuick('📕')" class="badge-opt-btn px-2.5 py-1 rounded-lg text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition" data-badge="📕">📕 教科書必須</button>
+            <button type="button" onclick="selectBadgeQuick('🕐')" class="badge-opt-btn px-2.5 py-1 rounded-lg text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition" data-badge="🕐">🕐 遅刻厳禁</button>
+            <button type="button" onclick="selectBadgeQuick('📝')" class="badge-opt-btn px-2.5 py-1 rounded-lg text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition" data-badge="📝">📝 小テスト・課題</button>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] text-slate-500 shrink-0">その他 (好きな1文字):</span>
+            <input id="inputBadgeCustom" type="text" placeholder="例: 🔬" oninput="onCustomBadgeInput(this.value)" class="w-14 text-center text-xs bg-slate-50 border border-slate-200 rounded-lg py-1 px-1.5 focus:bg-white focus:border-brand-500 focus:outline-none">
+            <span id="currentBadgePreview" class="text-[11px] px-2 py-0.5 rounded-md bg-brand-50 border border-brand-200 text-brand-700 font-bold hidden"></span>
+          </div>
+          <input type="hidden" id="inputBadgeValue" value="">
         </div>
       </div>
 
@@ -439,7 +459,7 @@
       <div class="space-y-3.5 text-xs text-slate-600 leading-relaxed">
         <div class="flex gap-2">
           <span class="font-bold text-brand-600 shrink-0">1.</span>
-          <div><strong class="text-slate-800">授業の登録：</strong>「コマ編集」を押して空きコマをタップすると、教科名・教室・Moodle URLを入力できます。</div>
+          <div><strong class="text-slate-800">授業の登録：</strong>「コマ編集」を押して空きコマをタップすると、教科名・教室・Moodle URL・属性マーク（💻や📕など）を設定できます。</div>
         </div>
         <div class="flex gap-2">
           <span class="font-bold text-brand-600 shrink-0">2.</span>
@@ -802,6 +822,7 @@
 
           if (item && item.subject && item.subject.trim() !== '') {
             const hasUrl = Boolean(getUrlForSubject(item.subject));
+            const badgeIcon = item.badge || '';
             
             let cardClasses = 'card-touch rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-between text-center w-full h-full relative ';
             if (isToday) {
@@ -811,6 +832,13 @@
             }
             cell.className = cardClasses;
 
+            // Top-left: Attribute Emoji Badge
+            let badgeHtml = '';
+            if (badgeIcon) {
+              badgeHtml = `<span class="absolute top-1 left-1.5 text-[11px] sm:text-xs leading-none select-none" title="属性マーク">${escapeHtml(badgeIcon)}</span>`;
+            }
+
+            // Top-right: Edit pencil or Moodle dot indicator
             let indicator = '';
             if (isEditMode) {
               indicator = `<span class="absolute top-1.5 right-1.5 text-[10px] text-brand-600 font-bold">✎</span>`;
@@ -819,11 +847,12 @@
             }
 
             cell.innerHTML = `
+              ${badgeHtml}
               ${indicator}
-              <div class="flex-1 flex items-center justify-center w-full px-0.5">
-                <span class="text-xs sm:text-[13px] font-bold text-slate-800 leading-snug break-words line-clamp-3">${escapeHtml(item.subject)}</span>
+              <div class="flex-1 flex items-center justify-center w-full px-0.5 mt-2 mb-0.5">
+                <span class="text-xs sm:text-[13px] font-bold text-slate-800 leading-snug break-words line-clamp-2">${escapeHtml(item.subject)}</span>
               </div>
-              <div class="w-full bg-white/90 border border-slate-200/60 rounded-full py-0.5 px-1.5 truncate mt-1">
+              <div class="w-full bg-white/90 border border-slate-200/60 rounded-full py-0.5 px-1.5 truncate">
                 <span class="text-[9.5px] sm:text-[10px] font-semibold text-slate-500 block truncate">${escapeHtml(item.room || '')}</span>
               </div>
             `;
@@ -938,7 +967,7 @@
     // --- MODAL: CLASS & URL CONFIGURATION ---
     function openClassModal(dIdx, pIdx, missingPrompt) {
       activeSlotKey = `${dIdx}-${pIdx}`;
-      const item = (appState.classes && appState.classes[activeSlotKey]) ? appState.classes[activeSlotKey] : { subject: '', room: '' };
+      const item = (appState.classes && appState.classes[activeSlotKey]) ? appState.classes[activeSlotKey] : { subject: '', room: '', badge: '' };
       const periods = getCurrentPeriods();
       const period = periods[pIdx] || DEFAULT_PERIODS[pIdx];
 
@@ -946,6 +975,9 @@
       document.getElementById('inputSubject').value = item.subject || '';
       document.getElementById('inputRoom').value = item.room || '';
       document.getElementById('inputUrl').value = getUrlForSubject(item.subject);
+
+      // Set Attribute Badge
+      setModalBadge(item.badge || '');
 
       renderExistingClassesQuickTags();
 
@@ -971,6 +1003,62 @@
       }
     }
 
+    // --- BADGE SELECTION HELPERS (Grapheme-aware 1 character support) ---
+    function getFirstCharOrEmoji(str) {
+      if (!str) return '';
+      const trimmed = str.trim();
+      if (!trimmed) return '';
+      if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+        const segmenter = new Intl.Segmenter('ja', { granularity: 'grapheme' });
+        const segments = Array.from(segmenter.segment(trimmed));
+        return segments.length > 0 ? segments[0].segment : '';
+      }
+      return Array.from(trimmed)[0] || '';
+    }
+
+    function setModalBadge(val) {
+      const cleanVal = getFirstCharOrEmoji(val);
+      const hiddenInput = document.getElementById('inputBadgeValue');
+      const customInput = document.getElementById('inputBadgeCustom');
+      const preview = document.getElementById('currentBadgePreview');
+      hiddenInput.value = cleanVal;
+
+      document.querySelectorAll('.badge-opt-btn').forEach(btn => {
+        const b = btn.getAttribute('data-badge');
+        if (b === cleanVal && cleanVal !== '') {
+          btn.className = "badge-opt-btn px-2.5 py-1 rounded-lg text-xs bg-brand-600 text-white border border-brand-700 shadow-xs transition font-semibold";
+        } else if (b === '' && cleanVal === '') {
+          btn.className = "badge-opt-btn px-2.5 py-1 rounded-lg text-xs bg-slate-800 text-white border border-slate-900 shadow-xs transition font-semibold";
+        } else {
+          btn.className = "badge-opt-btn px-2.5 py-1 rounded-lg text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition";
+        }
+      });
+
+      const presetBadges = ['', '💻', '📕', '🕐', '📝'];
+      if (!presetBadges.includes(cleanVal)) {
+        customInput.value = cleanVal;
+      } else {
+        customInput.value = '';
+      }
+
+      if (cleanVal) {
+        preview.textContent = `設定中: ${cleanVal}`;
+        preview.classList.remove('hidden');
+      } else {
+        preview.classList.add('hidden');
+      }
+    }
+
+    function selectBadgeQuick(emoji) {
+      setModalBadge(emoji);
+    }
+
+    function onCustomBadgeInput(val) {
+      const firstChar = getFirstCharOrEmoji(val);
+      document.getElementById('inputBadgeCustom').value = firstChar;
+      setModalBadge(firstChar);
+    }
+
     function renderExistingClassesQuickTags() {
       const section = document.getElementById('existingClassesSection');
       const listContainer = document.getElementById('existingClassesList');
@@ -987,10 +1075,12 @@
               registeredMap.set(sub, {
                 subject: sub,
                 room: c.room || '',
-                url: getUrlForSubject(sub)
+                url: getUrlForSubject(sub),
+                badge: c.badge || ''
               });
-            } else if (!registeredMap.get(sub).room && c.room) {
-              registeredMap.get(sub).room = c.room;
+            } else {
+              if (!registeredMap.get(sub).room && c.room) registeredMap.get(sub).room = c.room;
+              if (!registeredMap.get(sub).badge && c.badge) registeredMap.get(sub).badge = c.badge;
             }
           }
         });
@@ -1008,6 +1098,7 @@
         btn.type = 'button';
         btn.className = 'inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:border-brand-500 hover:text-brand-600 hover:bg-brand-50/50 shadow-sm active:scale-95 transition';
         btn.innerHTML = `
+          ${info.badge ? `<span class="text-[11px]">${escapeHtml(info.badge)}</span>` : ''}
           <span>${escapeHtml(info.subject)}</span>
           ${info.room ? `<span class="text-[10px] text-slate-400 font-normal">(${escapeHtml(info.room)})</span>` : ''}
         `;
@@ -1025,6 +1116,7 @@
       if (url) {
         document.getElementById('inputUrl').value = url;
       }
+      setModalBadge(info.badge || '');
       showToast(`「${info.subject}」の情報をコピーしました`);
     }
 
@@ -1042,6 +1134,7 @@
       const subject = document.getElementById('inputSubject').value.trim();
       const room = document.getElementById('inputRoom').value.trim();
       let url = document.getElementById('inputUrl').value.trim();
+      const badge = document.getElementById('inputBadgeValue').value.trim();
 
       if (url && !/^https?:\/\//i.test(url)) {
         url = 'https://' + url;
@@ -1053,7 +1146,11 @@
       if (!subject) {
         delete appState.classes[activeSlotKey];
       } else {
-        appState.classes[activeSlotKey] = { subject, room };
+        const slotObj = { subject, room };
+        if (badge) {
+          slotObj.badge = badge;
+        }
+        appState.classes[activeSlotKey] = slotObj;
         if (url) {
           appState.subjectUrls[subject] = url;
         }
