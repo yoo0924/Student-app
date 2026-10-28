@@ -82,23 +82,50 @@
           </span>
         </div>
 
-        <!-- Action Buttons (How-to & Edit Toggle) -->
+        <!-- Action Buttons (Timetable actions vs Task actions) -->
         <div class="flex items-center gap-2">
-          <!-- Usage / Help Button -->
-          <button type="button" onclick="openHelpModal()" class="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold bg-slate-50 text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-slate-200 transition" title="使い方">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span class="text-[11px]">使い方</span>
-          </button>
+          <!-- Timetable Top Actions -->
+          <div id="timetableTopActions" class="flex items-center gap-2">
+            <!-- Usage / Help Button -->
+            <button type="button" onclick="openHelpModal()" class="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold bg-slate-50 text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-slate-200 transition" title="使い方">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span class="text-[11px]">使い方</span>
+            </button>
 
-          <!-- Edit Mode Toggle -->
-          <button type="button" id="editToggleBtn" onclick="toggleEditMode()" class="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200 transition">
-            <svg id="editIcon" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            <span id="editBtnText">コマ編集</span>
-          </button>
+            <!-- Edit Mode Toggle -->
+            <button type="button" id="editToggleBtn" onclick="toggleEditMode()" class="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200 transition">
+              <svg id="editIcon" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              <span id="editBtnText">コマ編集</span>
+            </button>
+          </div>
+
+          <!-- Task Top Actions -->
+          <div id="taskTopActions" class="hidden items-center gap-1.5">
+            <!-- 1. Task Help -->
+            <button type="button" onclick="openTaskHelpModal()" class="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold bg-slate-50 text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-slate-200 transition" title="タスクの使い方">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span class="text-[11px]">使い方</span>
+            </button>
+            <!-- 2. Delete Completed Trash Button -->
+            <button type="button" onclick="clearCompletedTasks()" class="p-1.5 rounded-full text-slate-500 hover:text-rose-600 bg-slate-50 hover:bg-rose-50 border border-slate-200 transition" title="完了済みタスクを削除">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+            <!-- 3. Add Task Button (+) -->
+            <button type="button" onclick="openAddTaskModal()" class="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-brand-600 text-white hover:bg-brand-700 shadow-sm transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              <span>追加</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -106,9 +133,9 @@
       <div class="flex items-baseline justify-between mt-1">
         <div>
           <h1 id="termTitleDisplay" class="text-lg font-bold text-slate-800 tracking-tight">時間割</h1>
-          <p class="text-[11px] text-slate-400 mt-0.5">タップでMoodleへ直行。「コマ編集」から授業や時限の時間を変更できます。</p>
+          <p id="headerSubtitle" class="text-[11px] text-slate-400 mt-0.5">タップでMoodleへ直行。「コマ編集」から授業や時限の時間を変更できます。</p>
         </div>
-        <button type="button" onclick="openTermNameModal()" class="text-[11px] text-slate-400 hover:text-slate-600 underline">学期名変更</button>
+        <button type="button" id="btnChangeTermName" onclick="openTermNameModal()" class="text-[11px] text-slate-400 hover:text-slate-600 underline">学期名変更</button>
       </div>
     </header>
 
@@ -132,8 +159,8 @@
       <button type="button" onclick="toggleEditMode()" class="text-amber-900 font-bold underline">完了</button>
     </div>
 
-    <!-- Timetable Area -->
-    <main class="flex-1 px-3 sm:px-6 pt-3 pb-6 flex flex-col">
+    <!-- PAGE 1: Timetable Area -->
+    <main id="viewTimetable" class="flex-1 px-3 sm:px-6 pt-3 pb-6 flex flex-col">
       <!-- Weekday Header Row -->
       <div class="timetable-grid mb-2 items-center text-center">
         <div></div> <!-- Period column corner -->
@@ -160,8 +187,20 @@
       </div>
     </main>
 
-    <!-- Footer Utility Links -->
-    <footer class="px-4 sm:px-6 pt-2 pb-6 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+    <!-- PAGE 2: Task Management Area -->
+    <main id="viewTasks" class="hidden flex-1 px-4 sm:px-6 pt-4 pb-6 flex flex-col">
+      <div class="flex items-center justify-between mb-3 text-xs text-slate-400">
+        <span id="taskStatsLabel">未完了 0件</span>
+        <span class="text-[11px]">期限順に自動ソート</span>
+      </div>
+      <!-- Task List Container -->
+      <div id="taskListContainer" class="space-y-2.5 flex-1 overflow-y-auto no-scrollbar">
+        <!-- Dynamically rendered -->
+      </div>
+    </main>
+
+    <!-- Footer Utility Links (Timetable Only) -->
+    <footer id="timetableFooter" class="px-4 sm:px-6 pt-2 pb-6 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
       <div class="flex items-center gap-3">
         <button type="button" onclick="openSubjectUrlListModal()" class="hover:text-slate-600 font-medium">登録URL一覧</button>
         <span>•</span>
@@ -172,34 +211,126 @@
 
   </div>
 
-  <!-- Bottom Navigation Bar (Portal, Moodle, Share) -->
-  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-lg px-3 py-2 flex justify-center">
-    <div class="w-full max-w-2xl flex items-center justify-around gap-2">
-      <!-- Portal Link -->
-      <a href="https://uportal.kumamoto-u.ac.jp/uPortal/render.userLayoutRootNode.uP" target="_blank" rel="noopener noreferrer" class="flex-1 flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-slate-600 hover:text-brand-600 hover:bg-slate-50 transition active:scale-95">
+  <!-- Bottom Navigation Bar (Timetable, Tasks, Portal, Moodle, Share) -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-lg px-2 py-1.5 flex justify-center">
+    <div class="w-full max-w-2xl grid grid-cols-5 gap-1 text-center">
+      <!-- 1. Timetable Tab -->
+      <button type="button" id="navBtnTimetable" onclick="switchMainTab('timetable')" class="flex flex-col items-center justify-center py-1 rounded-xl text-brand-600 bg-brand-50/70 font-semibold transition active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 14h18m-9-4v8m-7 4h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <span class="text-[10px] tracking-tight">時間割</span>
+      </button>
+
+      <!-- 2. Tasks Tab -->
+      <button type="button" id="navBtnTasks" onclick="switchMainTab('tasks')" class="flex flex-col items-center justify-center py-1 rounded-xl text-slate-600 hover:text-brand-600 hover:bg-slate-50 transition active:scale-95 relative">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        </svg>
+        <span class="text-[10px] tracking-tight">タスク</span>
+        <span id="navTaskBadge" class="hidden absolute top-1 right-3 w-2 h-2 rounded-full bg-rose-500"></span>
+      </button>
+
+      <!-- 3. Portal Link -->
+      <a href="https://uportal.kumamoto-u.ac.jp/uPortal/render.userLayoutRootNode.uP" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center justify-center py-1 rounded-xl text-slate-600 hover:text-brand-600 hover:bg-slate-50 transition active:scale-95">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
           <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
         </svg>
-        <span class="text-[11px] font-bold tracking-tight">ポータル</span>
+        <span class="text-[10px] tracking-tight">ポータル</span>
       </a>
 
-      <!-- Moodle Link -->
-      <a href="https://md.kumamoto-u.ac.jp/my/" target="_blank" rel="noopener noreferrer" class="flex-1 flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-slate-600 hover:text-brand-600 hover:bg-slate-50 transition active:scale-95">
+      <!-- 4. Moodle Link -->
+      <a href="https://md.kumamoto-u.ac.jp/my/" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center justify-center py-1 rounded-xl text-slate-600 hover:text-brand-600 hover:bg-slate-50 transition active:scale-95">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
         </svg>
-        <span class="text-[11px] font-bold tracking-tight">Moodle</span>
+        <span class="text-[10px] tracking-tight">Moodle</span>
       </a>
 
-      <!-- Share Timetable -->
-      <button type="button" onclick="openShareModal()" class="flex-1 flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-brand-600 bg-brand-50/80 hover:bg-brand-100 transition active:scale-95 border border-brand-200/50">
+      <!-- 5. Share Timetable -->
+      <button type="button" onclick="openShareModal()" class="flex flex-col items-center justify-center py-1 rounded-xl text-brand-600 hover:bg-brand-50 transition active:scale-95">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
         </svg>
-        <span class="text-[11px] font-bold tracking-tight">時間割を共有</span>
+        <span class="text-[10px] tracking-tight">共有</span>
       </button>
     </div>
   </nav>
+
+  <!-- ==================== TASK MODALS ==================== -->
+
+  <!-- MODAL: Add Task -->
+  <div id="addTaskModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl overflow-hidden border border-slate-100 p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+          <span class="w-6 h-6 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center text-xs font-bold">＋</span>
+          新規タスクの追加
+        </h3>
+        <button type="button" onclick="closeAddTaskModal()" class="text-slate-400 hover:text-slate-600">✕</button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">タスク名 <span class="text-rose-500">*</span></label>
+          <input id="inputTaskName" type="text" placeholder="例: レポート第2回、小テスト受託" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:border-brand-500 focus:outline-none transition">
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">提出・完了期限 <span class="text-rose-500">*</span></label>
+          <input id="inputTaskDeadline" type="datetime-local" class="w-full text-xs font-mono bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:border-brand-500 focus:outline-none transition">
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">紐付ける授業 (任意)</label>
+          <select id="selectTaskSubject" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:bg-white focus:border-brand-500 focus:outline-none transition">
+            <!-- Dynamically populated from timetable -->
+          </select>
+          <p class="text-[10px] text-slate-400 mt-1">※ 時間割の授業を選ぶと、タスク一覧から直接Moodleを開けます</p>
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-1">
+        <button type="button" onclick="closeAddTaskModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition">
+          キャンセル
+        </button>
+        <button type="button" onclick="saveNewTask()" class="flex-1 py-2.5 rounded-xl bg-brand-600 text-white text-xs font-bold hover:bg-brand-700 transition shadow-sm">
+          追加する
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Task Usage / Help -->
+  <div id="taskHelpModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl overflow-hidden border border-slate-100 p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs">
+            ?
+          </div>
+          <h3 class="text-sm font-bold text-slate-800">タスク管理の使い方</h3>
+        </div>
+        <button type="button" onclick="closeTaskHelpModal()" class="text-slate-400 hover:text-slate-600">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs text-slate-600 leading-relaxed">
+        <div class="p-3 bg-brand-50/70 border border-brand-200/70 rounded-xl text-slate-700">
+          <strong class="text-brand-900 block mb-1">🔗 授業・Moodleとの直通連携</strong>
+          時間割にある授業を選択してタスクを作成すると、タスク一覧の右端に<strong>「Moodleボタン」</strong>が表示され、1タップですぐにその講義ページへ飛べます。
+        </div>
+        <div class="space-y-1.5 pl-1">
+          <p><strong>1. 自動並び替え:</strong> 提出期限が近いものが自動的に上段に表示されます。</p>
+          <p><strong>2. 完了チェック:</strong> チェックをつけると取り消し線が引かれ、未完了リストの下段へ整列します。</p>
+          <p><strong>3. ゴミ箱ボタン:</strong> 上部のゴミ箱ボタンを押すと、完了済みタスクだけを一括消去できます。</p>
+        </div>
+      </div>
+
+      <button type="button" onclick="closeTaskHelpModal()" class="w-full py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition">
+        閉じる
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== EXISTING TIMETABLE MODALS ==================== -->
 
   <!-- MODAL: Class Edit & URL Configuration -->
   <div id="classModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
@@ -224,9 +355,7 @@
           <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">登録済みからワンタップ複製</span>
           <span class="text-[9px] text-slate-400">タップで自動入力</span>
         </div>
-        <div id="existingClassesList" class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto no-scrollbar pt-0.5">
-          <!-- Dynamically populated tags -->
-        </div>
+        <div id="existingClassesList" class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto no-scrollbar pt-0.5"></div>
       </div>
 
       <div class="space-y-3">
@@ -449,9 +578,7 @@
         <h3 class="text-sm font-bold text-slate-800">登録済みMoodle URL一覧</h3>
         <button type="button" onclick="closeUrlListModal()" class="text-slate-400 hover:text-slate-600">✕</button>
       </div>
-      <div id="urlListContainer" class="p-4 space-y-2.5 overflow-y-auto flex-1">
-        <!-- Dynamically rendered -->
-      </div>
+      <div id="urlListContainer" class="p-4 space-y-2.5 overflow-y-auto flex-1"></div>
     </div>
   </div>
 
@@ -502,7 +629,6 @@
     const DAYS = ['月', '火', '水', '木', '金'];
     const DAY_NAMES_JA = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
 
-    // 初期状態: 空の時間割 & 標準時限
     const DEFAULT_TIMETABLE = {
       term: "時間割",
       classes: {},
@@ -510,14 +636,17 @@
       periods: JSON.parse(JSON.stringify(DEFAULT_PERIODS))
     };
 
-    // 永続化キー
+    // 永続化キー: 時間割用 & タスク用 (互いに独立)
     const STORAGE_KEY = 'kumamoto_u_timetable_v1';
+    const STORAGE_TASKS_KEY = 'kumamoto_u_tasks_v1';
 
     // Application State
     let appState = JSON.parse(JSON.stringify(DEFAULT_TIMETABLE));
+    let tasksState = [];
     let isEditMode = false;
     let activeSlotKey = null;
     let activePeriodIndex = null;
+    let currentMainTab = 'timetable';
 
     // --- INITIALIZATION ---
     window.addEventListener('DOMContentLoaded', () => {
@@ -526,13 +655,67 @@
         if (!imported) {
           loadFromStorage();
         }
+        loadTasksFromStorage();
       } catch (e) {
         console.error('Init storage error:', e);
       }
 
       renderHeaderDateAndDay();
       renderTimetable();
+      renderTaskList();
+      updateNavTaskBadge();
     });
+
+    // --- MAIN TAB SWITCHER (TIMETABLE vs TASKS) ---
+    function switchMainTab(tab) {
+      currentMainTab = tab;
+      const vTimetable = document.getElementById('viewTimetable');
+      const vTasks = document.getElementById('viewTasks');
+      const footer = document.getElementById('timetableFooter');
+      const navTimetable = document.getElementById('navBtnTimetable');
+      const navTasks = document.getElementById('navBtnTasks');
+      const ttTopActions = document.getElementById('timetableTopActions');
+      const taskTopActions = document.getElementById('taskTopActions');
+      const headerTitle = document.getElementById('termTitleDisplay');
+      const headerSubtitle = document.getElementById('headerSubtitle');
+      const btnChangeTerm = document.getElementById('btnChangeTermName');
+
+      if (tab === 'timetable') {
+        vTimetable.classList.remove('hidden');
+        vTasks.classList.add('hidden');
+        footer.classList.remove('hidden');
+
+        navTimetable.className = "flex flex-col items-center justify-center py-1 rounded-xl text-brand-600 bg-brand-50/70 font-semibold transition active:scale-95";
+        navTasks.className = "flex flex-col items-center justify-center py-1 rounded-xl text-slate-600 hover:text-brand-600 hover:bg-slate-50 transition active:scale-95 relative";
+
+        ttTopActions.classList.remove('hidden');
+        ttTopActions.classList.add('flex');
+        taskTopActions.classList.add('hidden');
+        taskTopActions.classList.remove('flex');
+
+        headerTitle.textContent = appState.term || '時間割';
+        headerSubtitle.textContent = 'タップでMoodleへ直行。「コマ編集」から授業や時限の時間を変更できます。';
+        btnChangeTerm.classList.remove('hidden');
+      } else {
+        vTimetable.classList.add('hidden');
+        vTasks.classList.remove('hidden');
+        footer.classList.add('hidden');
+
+        navTasks.className = "flex flex-col items-center justify-center py-1 rounded-xl text-brand-600 bg-brand-50/70 font-semibold transition active:scale-95 relative";
+        navTimetable.className = "flex flex-col items-center justify-center py-1 rounded-xl text-slate-600 hover:text-brand-600 hover:bg-slate-50 transition active:scale-95";
+
+        ttTopActions.classList.add('hidden');
+        ttTopActions.classList.remove('flex');
+        taskTopActions.classList.remove('hidden');
+        taskTopActions.classList.add('flex');
+
+        headerTitle.textContent = 'タスク管理';
+        headerSubtitle.textContent = '提出物や小テストを管理し、授業ごとのMoodleに直行できます。';
+        btnChangeTerm.classList.add('hidden');
+
+        renderTaskList();
+      }
+    }
 
     // --- DATE & DAY HIGHLIGHTING ---
     function renderHeaderDateAndDay() {
@@ -540,13 +723,12 @@
       const year = now.getFullYear();
       const month = now.getMonth() + 1;
       const date = now.getDate();
-      const dayNum = now.getDay(); // 0(日)..6(土)
+      const dayNum = now.getDay();
 
       const dateStr = `${year}年${month}月${date}日 ${DAY_NAMES_JA[dayNum]}`;
       const elem = document.getElementById('currentDateDisplay');
       if (elem) elem.textContent = dateStr;
 
-      // Map Mon(1)..Fri(5) to 0..4
       const dayIdx = (dayNum >= 1 && dayNum <= 5) ? (dayNum - 1) : null;
 
       DAYS.forEach((_, idx) => {
@@ -564,7 +746,6 @@
       window._currentTodayIdx = dayIdx;
     }
 
-    // --- HELPER: GET CURRENT PERIODS ---
     function getCurrentPeriods() {
       if (Array.isArray(appState.periods) && appState.periods.length === 6) {
         return appState.periods;
@@ -574,9 +755,11 @@
 
     // --- TIMETABLE RENDERING ---
     function renderTimetable() {
-      const termTitle = document.getElementById('termTitleDisplay');
-      if (termTitle) {
-        termTitle.textContent = appState.term || '時間割';
+      if (currentMainTab === 'timetable') {
+        const termTitle = document.getElementById('termTitleDisplay');
+        if (termTitle) {
+          termTitle.textContent = appState.term || '時間割';
+        }
       }
 
       const container = document.getElementById('timetableRows');
@@ -590,7 +773,6 @@
         const row = document.createElement('div');
         row.className = 'timetable-grid flex-1 min-h-[92px] sm:min-h-[104px]';
 
-        // Time / Period Column (Editable in Edit Mode)
         const timeCol = document.createElement('button');
         timeCol.type = 'button';
         timeCol.onclick = () => onPeriodClick(pIdx);
@@ -612,7 +794,6 @@
         `;
         row.appendChild(timeCol);
 
-        // 5 Weekday Columns
         for (let dIdx = 0; dIdx < 5; dIdx++) {
           const key = `${dIdx}-${pIdx}`;
           const item = appState.classes ? appState.classes[key] : null;
@@ -650,7 +831,6 @@
               </div>
             `;
           } else {
-            // Empty Slot
             let emptyClasses = 'card-touch rounded-2xl w-full h-full flex items-center justify-center border transition ';
             if (isToday) {
               emptyClasses += 'bg-indigo-50/20 border-indigo-100 hover:bg-indigo-50/50';
@@ -745,19 +925,15 @@
         return;
       }
 
-      // Normal Mode
       if (!item || !item.subject) {
-        // 空きコマをタップした場合は編集モーダルを開く
         openClassModal(dIdx, pIdx, false);
         return;
       }
 
       const url = getUrlForSubject(item.subject);
       if (url && url.trim() !== '') {
-        // Direct Moodle Jump
         window.open(url.trim(), '_blank', 'noopener,noreferrer');
       } else {
-        // Prompt to configure URL once
         openClassModal(dIdx, pIdx, true);
       }
     }
@@ -798,7 +974,6 @@
       }
     }
 
-    // --- QUICK COPY TAGS GENERATOR ---
     function renderExistingClassesQuickTags() {
       const section = document.getElementById('existingClassesSection');
       const listContainer = document.getElementById('existingClassesList');
@@ -923,13 +1098,11 @@
         const siteUrlInput = document.getElementById('baseSiteUrlInput');
         if (siteUrlInput) siteUrlInput.value = baseUrl;
 
-        // 最新の状態のJSONコードを生成してセット
         const codeTextarea = document.getElementById('shareBackupCodeTextarea');
         if (codeTextarea) {
           codeTextarea.value = JSON.stringify(appState, null, 2);
         }
 
-        // 初期URLを自動コピー
         copyTextToClipboard(baseUrl, 'サイトのURLをコピーしました！説明を確認してください');
 
         const modal = document.getElementById('shareModal');
@@ -1175,7 +1348,7 @@
       showToast('時間割を空の状態にリセットしました');
     }
 
-    // --- STORAGE ---
+    // --- STORAGE FOR TIMETABLE ---
     function loadFromStorage() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -1201,6 +1374,282 @@
       } catch (e) {
         console.error('Failed to save storage:', e);
       }
+    }
+
+    // ========================================================
+    // --- TASK MANAGEMENT SYSTEM (ISOLATED & ZERO-COLLISION) ---
+    // ========================================================
+    function loadTasksFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_TASKS_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            tasksState = parsed;
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load tasks storage:', e);
+        tasksState = [];
+      }
+    }
+
+    function saveTasksToStorage() {
+      try {
+        localStorage.setItem(STORAGE_TASKS_KEY, JSON.stringify(tasksState));
+      } catch (e) {
+        console.error('Failed to save tasks storage:', e);
+      }
+    }
+
+    function renderTaskList() {
+      const container = document.getElementById('taskListContainer');
+      const statsLabel = document.getElementById('taskStatsLabel');
+      if (!container) return;
+
+      const sorted = [...tasksState].sort((a, b) => {
+        if (a.completed !== b.completed) {
+          return a.completed ? 1 : -1;
+        }
+        const timeA = new Date(a.deadline || '2099-12-31').getTime();
+        const timeB = new Date(b.deadline || '2099-12-31').getTime();
+        return timeA - timeB;
+      });
+
+      const incompleteCount = tasksState.filter(t => !t.completed).length;
+      if (statsLabel) {
+        statsLabel.textContent = `未完了 ${incompleteCount}件 / 全 ${tasksState.length}件`;
+      }
+
+      updateNavTaskBadge();
+
+      if (sorted.length === 0) {
+        container.innerHTML = `
+          <div class="py-12 px-4 text-center bg-slate-50 border border-slate-100 rounded-2xl">
+            <div class="w-10 h-10 mx-auto rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <p class="text-xs font-bold text-slate-700">登録されたタスクはありません</p>
+            <p class="text-[11px] text-slate-400 mt-1">右上の「追加」ボタンから課題や小テストを登録しましょう！</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+
+      sorted.forEach(task => {
+        const hasUrl = task.subject && getUrlForSubject(task.subject);
+        const dlFormatted = formatTaskDeadline(task.deadline);
+        const isOverdue = !task.completed && new Date(task.deadline).getTime() < Date.now();
+
+        const itemCard = document.createElement('div');
+        let cardClass = 'p-3 rounded-2xl border transition flex items-center justify-between gap-3 ';
+        if (task.completed) {
+          cardClass += 'bg-slate-50/70 border-slate-200 opacity-60';
+        } else if (isOverdue) {
+          cardClass += 'bg-rose-50/50 border-rose-200 shadow-sm';
+        } else {
+          cardClass += 'bg-white border-slate-200/80 shadow-[0_1px_2px_rgba(0,0,0,0.02)] hover:border-brand-300';
+        }
+        itemCard.className = cardClass;
+
+        itemCard.innerHTML = `
+          <div class="flex items-center gap-2.5 flex-1 min-w-0">
+            <!-- Checkbox -->
+            <button type="button" onclick="toggleTaskCompletion('${task.id}')" class="shrink-0 w-5 h-5 rounded-md border flex items-center justify-center transition active:scale-95 ${task.completed ? 'bg-brand-600 border-brand-600 text-white' : 'border-slate-300 hover:border-brand-500 bg-white'}">
+              ${task.completed ? '<svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>' : ''}
+            </button>
+
+            <!-- Order: Deadline -> Task Name -> Subject -->
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-1.5 mb-0.5">
+                <!-- 1. Deadline -->
+                <span class="text-[9.5px] font-mono font-bold px-1.5 py-0.5 rounded ${isOverdue ? 'bg-rose-100 text-rose-700' : task.completed ? 'bg-slate-200 text-slate-500' : 'bg-brand-50 text-brand-700 border border-brand-200/60'}">
+                  ${dlFormatted}
+                </span>
+                <!-- 3. Subject -->
+                ${task.subject ? `<span class="text-[9.5px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded font-medium truncate max-w-[120px]">${escapeHtml(task.subject)}</span>` : ''}
+              </div>
+
+              <!-- 2. Task Name -->
+              <p class="text-xs sm:text-[13px] font-bold text-slate-800 truncate ${task.completed ? 'line-through text-slate-400' : ''}">
+                ${escapeHtml(task.name)}
+              </p>
+            </div>
+          </div>
+
+          <!-- Right Action: Jump to Moodle Button & Delete -->
+          <div class="flex items-center gap-1 shrink-0">
+            ${task.subject && hasUrl ? `
+              <button type="button" onclick="openMoodleForSubject('${escapeJs(task.subject)}')" class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-bold bg-brand-50 text-brand-700 hover:bg-brand-100 border border-brand-200/70 transition shadow-xs active:scale-95" title="Moodleを開く">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                <span>Moodle</span>
+              </button>
+            ` : task.subject ? `
+              <span class="text-[9.5px] text-slate-300 px-1.5">URL未登録</span>
+            ` : ''}
+
+            <!-- Delete Single Button -->
+            <button type="button" onclick="deleteSingleTask('${task.id}')" class="p-1.5 text-slate-300 hover:text-rose-600 transition rounded-lg" title="削除">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        `;
+
+        container.appendChild(itemCard);
+      });
+    }
+
+    function formatTaskDeadline(dlStr) {
+      if (!dlStr) return '期限なし';
+      const d = new Date(dlStr);
+      if (isNaN(d.getTime())) return dlStr;
+      const m = d.getMonth() + 1;
+      const day = d.getDate();
+      const w = ['日', '月', '火', '水', '木', '金', '土'][d.getDay()];
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mm = String(d.getMinutes()).padStart(2, '0');
+      return `${m}/${day}(${w}) ${hh}:${mm}`;
+    }
+
+    function openAddTaskModal() {
+      document.getElementById('inputTaskName').value = '';
+
+      // Set default deadline to tomorrow 23:59
+      const d = new Date();
+      d.setDate(d.getDate() + 1);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      document.getElementById('inputTaskDeadline').value = `${yyyy}-${mm}-${dd}T23:59`;
+
+      // Populate current timetable subjects
+      const select = document.getElementById('selectTaskSubject');
+      select.innerHTML = '<option value="">(紐付けなし)</option>';
+
+      const subjects = new Set();
+      if (appState.classes) {
+        Object.values(appState.classes).forEach(c => {
+          if (c && c.subject && c.subject.trim() !== '') {
+            subjects.add(c.subject.trim());
+          }
+        });
+      }
+
+      subjects.forEach(subj => {
+        const opt = document.createElement('option');
+        opt.value = subj;
+        opt.textContent = subj;
+        select.appendChild(opt);
+      });
+
+      const m = document.getElementById('addTaskModal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+      setTimeout(() => document.getElementById('inputTaskName').focus(), 80);
+    }
+
+    function closeAddTaskModal() {
+      const m = document.getElementById('addTaskModal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    function saveNewTask() {
+      const name = document.getElementById('inputTaskName').value.trim();
+      const deadline = document.getElementById('inputTaskDeadline').value;
+      const subject = document.getElementById('selectTaskSubject').value;
+
+      if (!name) {
+        showToast('タスク名を入力してください');
+        return;
+      }
+      if (!deadline) {
+        showToast('期限を設定してください');
+        return;
+      }
+
+      tasksState.push({
+        id: 'tsk_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        name: name,
+        deadline: deadline,
+        subject: subject,
+        completed: false
+      });
+
+      saveTasksToStorage();
+      renderTaskList();
+      closeAddTaskModal();
+      showToast('タスクを追加しました');
+    }
+
+    function toggleTaskCompletion(taskId) {
+      const task = tasksState.find(t => t.id === taskId);
+      if (task) {
+        task.completed = !task.completed;
+        saveTasksToStorage();
+        renderTaskList();
+      }
+    }
+
+    function deleteSingleTask(taskId) {
+      tasksState = tasksState.filter(t => t.id !== taskId);
+      saveTasksToStorage();
+      renderTaskList();
+      showToast('タスクを削除しました');
+    }
+
+    function clearCompletedTasks() {
+      const completedCount = tasksState.filter(t => t.completed).length;
+      if (completedCount === 0) {
+        showToast('完了済みのタスクはありません');
+        return;
+      }
+      if (confirm(`完了済みのタスク（${completedCount}件）を一括削除しますか？`)) {
+        tasksState = tasksState.filter(t => !t.completed);
+        saveTasksToStorage();
+        renderTaskList();
+        showToast('完了済みタスクを削除しました');
+      }
+    }
+
+    function openMoodleForSubject(subject) {
+      const url = getUrlForSubject(subject);
+      if (url && url.trim() !== '') {
+        window.open(url.trim(), '_blank', 'noopener,noreferrer');
+      } else {
+        showToast(`「${subject}」のMoodle URLが時間割に登録されていません`);
+      }
+    }
+
+    function updateNavTaskBadge() {
+      const badge = document.getElementById('navTaskBadge');
+      if (!badge) return;
+      const incomplete = tasksState.filter(t => !t.completed).length;
+      if (incomplete > 0) {
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function openTaskHelpModal() {
+      const m = document.getElementById('taskHelpModal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+
+    function closeTaskHelpModal() {
+      const m = document.getElementById('taskHelpModal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
     }
 
     // --- HELP MODAL ---
