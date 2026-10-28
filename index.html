@@ -259,13 +259,13 @@
 
   <!-- ==================== TASK MODALS ==================== -->
 
-  <!-- MODAL: Add Task -->
+  <!-- MODAL: Add / Edit Task -->
   <div id="addTaskModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl overflow-hidden border border-slate-100 p-5 space-y-4">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
         <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-          <span class="w-6 h-6 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center text-xs font-bold">＋</span>
-          新規タスクの追加
+          <span id="taskModalIconBadge" class="w-6 h-6 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center text-xs font-bold">＋</span>
+          <span id="taskModalTitleText">新規タスクの追加</span>
         </h3>
         <button type="button" onclick="closeAddTaskModal()" class="text-slate-400 hover:text-slate-600">✕</button>
       </div>
@@ -292,7 +292,7 @@
         <button type="button" onclick="closeAddTaskModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition">
           キャンセル
         </button>
-        <button type="button" onclick="saveNewTask()" class="flex-1 py-2.5 rounded-xl bg-brand-600 text-white text-xs font-bold hover:bg-brand-700 transition shadow-sm">
+        <button type="button" id="btnSaveTaskSubmit" onclick="saveNewTask()" class="flex-1 py-2.5 rounded-xl bg-brand-600 text-white text-xs font-bold hover:bg-brand-700 transition shadow-sm">
           追加する
         </button>
       </div>
@@ -319,8 +319,9 @@
         </div>
         <div class="space-y-1.5 pl-1">
           <p><strong>1. 自動並び替え:</strong> 提出期限が近いものが自動的に上段に表示されます。</p>
-          <p><strong>2. 完了チェック:</strong> チェックをつけると取り消し線が引かれ、未完了リストの下段へ整列します。</p>
-          <p><strong>3. ゴミ箱ボタン:</strong> 上部のゴミ箱ボタンを押すと、完了済みタスクだけを一括消去できます。</p>
+          <p><strong>2. 編集ボタン:</strong> タスク右側の「編集」ボタンから、タスク名・期限・紐付ける授業をいつでも変更できます。</p>
+          <p><strong>3. 完了チェック:</strong> チェックをつけると取り消し線が引かれ、未完了リストの下段へ整列します。</p>
+          <p><strong>4. ゴミ箱ボタン:</strong> 上部のゴミ箱ボタンを押すと、完了済みタスクだけを一括消去できます。</p>
         </div>
       </div>
 
@@ -664,6 +665,7 @@
     let activeSlotKey = null;
     let activePeriodIndex = null;
     let currentMainTab = 'timetable';
+    let editingTaskId = null;
 
     // --- INITIALIZATION ---
     window.addEventListener('DOMContentLoaded', () => {
@@ -1548,7 +1550,7 @@
         const isOverdue = !task.completed && new Date(task.deadline).getTime() < Date.now();
 
         const itemCard = document.createElement('div');
-        let cardClass = 'p-3 rounded-2xl border transition flex items-center justify-between gap-3 ';
+        let cardClass = 'p-3 rounded-2xl border transition flex items-center justify-between gap-2.5 ';
         if (task.completed) {
           cardClass += 'bg-slate-50/70 border-slate-200 opacity-60';
         } else if (isOverdue) {
@@ -1583,8 +1585,17 @@
             </div>
           </div>
 
-          <!-- Right Action: Jump to Moodle Button & Delete -->
-          <div class="flex items-center gap-1 shrink-0">
+          <!-- Right Action: Edit Button (Left of Moodle) -> Jump to Moodle Button -> Delete -->
+          <div class="flex items-center gap-1.5 shrink-0">
+            <!-- Edit Task Button -->
+            <button type="button" onclick="openEditTaskModal('${task.id}')" class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800 border border-slate-200/80 transition shadow-xs active:scale-95" title="タスクを編集">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              <span>編集</span>
+            </button>
+
+            <!-- Moodle Jump Button -->
             ${task.subject && hasUrl ? `
               <button type="button" onclick="openMoodleForSubject('${escapeJs(task.subject)}')" class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-bold bg-brand-50 text-brand-700 hover:bg-brand-100 border border-brand-200/70 transition shadow-xs active:scale-95" title="Moodleを開く">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -1593,7 +1604,7 @@
                 <span>Moodle</span>
               </button>
             ` : task.subject ? `
-              <span class="text-[9.5px] text-slate-300 px-1.5">URL未登録</span>
+              <span class="text-[9.5px] text-slate-300 px-1">URL未登録</span>
             ` : ''}
 
             <!-- Delete Single Button -->
@@ -1621,16 +1632,7 @@
       return `${m}/${day}(${w}) ${hh}:${mm}`;
     }
 
-    function openAddTaskModal() {
-      document.getElementById('inputTaskName').value = '';
-
-      const d = new Date();
-      d.setDate(d.getDate() + 1);
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const dd = String(d.getDate()).padStart(2, '0');
-      document.getElementById('inputTaskDeadline').value = `${yyyy}-${mm}-${dd}T23:59`;
-
+    function populateTaskSubjectOptions(selectedSubject = '') {
       const select = document.getElementById('selectTaskSubject');
       select.innerHTML = '<option value="">(紐付けなし)</option>';
 
@@ -1642,13 +1644,56 @@
           }
         });
       }
+      if (selectedSubject && !subjects.has(selectedSubject)) {
+        subjects.add(selectedSubject);
+      }
 
       subjects.forEach(subj => {
         const opt = document.createElement('option');
         opt.value = subj;
         opt.textContent = subj;
+        if (subj === selectedSubject) {
+          opt.selected = true;
+        }
         select.appendChild(opt);
       });
+    }
+
+    function openAddTaskModal() {
+      editingTaskId = null;
+      document.getElementById('taskModalIconBadge').textContent = '＋';
+      document.getElementById('taskModalTitleText').textContent = '新規タスクの追加';
+      document.getElementById('btnSaveTaskSubmit').textContent = '追加する';
+
+      document.getElementById('inputTaskName').value = '';
+
+      const d = new Date();
+      d.setDate(d.getDate() + 1);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      document.getElementById('inputTaskDeadline').value = `${yyyy}-${mm}-${dd}T23:59`;
+
+      populateTaskSubjectOptions('');
+
+      const m = document.getElementById('addTaskModal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+      setTimeout(() => document.getElementById('inputTaskName').focus(), 80);
+    }
+
+    function openEditTaskModal(taskId) {
+      const target = tasksState.find(t => t.id === taskId);
+      if (!target) return;
+
+      editingTaskId = taskId;
+      document.getElementById('taskModalIconBadge').textContent = '✎';
+      document.getElementById('taskModalTitleText').textContent = 'タスクの編集';
+      document.getElementById('btnSaveTaskSubmit').textContent = '保存する';
+
+      document.getElementById('inputTaskName').value = target.name || '';
+      document.getElementById('inputTaskDeadline').value = target.deadline || '';
+      populateTaskSubjectOptions(target.subject || '');
 
       const m = document.getElementById('addTaskModal');
       m.classList.remove('hidden');
@@ -1660,6 +1705,7 @@
       const m = document.getElementById('addTaskModal');
       m.classList.add('hidden');
       m.classList.remove('flex');
+      editingTaskId = null;
     }
 
     function saveNewTask() {
@@ -1676,18 +1722,31 @@
         return;
       }
 
-      tasksState.push({
-        id: 'tsk_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-        name: name,
-        deadline: deadline,
-        subject: subject,
-        completed: false
-      });
+      if (editingTaskId) {
+        const idx = tasksState.findIndex(t => t.id === editingTaskId);
+        if (idx !== -1) {
+          tasksState[idx].name = name;
+          tasksState[idx].deadline = deadline;
+          tasksState[idx].subject = subject;
+        }
+        saveTasksToStorage();
+        renderTaskList();
+        closeAddTaskModal();
+        showToast('タスクを更新しました');
+      } else {
+        tasksState.push({
+          id: 'tsk_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+          name: name,
+          deadline: deadline,
+          subject: subject,
+          completed: false
+        });
 
-      saveTasksToStorage();
-      renderTaskList();
-      closeAddTaskModal();
-      showToast('タスクを追加しました');
+        saveTasksToStorage();
+        renderTaskList();
+        closeAddTaskModal();
+        showToast('タスクを追加しました');
+      }
     }
 
     function toggleTaskCompletion(taskId) {
