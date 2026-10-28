@@ -84,9 +84,9 @@
 
         <!-- Action Buttons (Timetable actions vs Task actions) -->
         <div class="flex items-center gap-2">
-          <!-- Timetable Top Actions -->
-          <div id="timetableTopActions" class="flex items-center gap-2">
-            <!-- Usage / Help Button -->
+          <!-- Timetable Top Actions: 使い方 -> 共有 -> コマ編集 -->
+          <div id="timetableTopActions" class="flex items-center gap-1.5 sm:gap-2">
+            <!-- 1. 使い方 -->
             <button type="button" onclick="openHelpModal()" class="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold bg-slate-50 text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-slate-200 transition" title="使い方">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -94,12 +94,20 @@
               <span class="text-[11px]">使い方</span>
             </button>
 
-            <!-- Edit Mode Toggle -->
+            <!-- 2. 共有 -->
+            <button type="button" onclick="openShareModal()" class="flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-semibold bg-slate-50 text-slate-600 hover:text-brand-600 hover:bg-brand-50/70 border border-slate-200 transition" title="時間割を共有">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+              <span class="text-[11px]">共有</span>
+            </button>
+
+            <!-- 3. コマ編集 -->
             <button type="button" id="editToggleBtn" onclick="toggleEditMode()" class="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200 transition">
               <svg id="editIcon" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
-              <span id="editBtnText">コマ編集</span>
+              <span id="editBtnText" class="text-[11px]">コマ編集</span>
             </button>
           </div>
 
@@ -211,49 +219,41 @@
 
   </div>
 
-  <!-- Bottom Navigation Bar (Timetable, Tasks, Portal, Moodle, Share) -->
+  <!-- Bottom Navigation Bar (Timetable, Tasks, Portal, Moodle) -->
   <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-lg px-2 py-1.5 flex justify-center">
-    <div class="w-full max-w-2xl grid grid-cols-5 gap-1 text-center">
+    <div class="w-full max-w-2xl grid grid-cols-4 gap-1 text-center">
       <!-- 1. Timetable Tab -->
-      <button type="button" id="navBtnTimetable" onclick="switchMainTab('timetable')" class="flex flex-col items-center justify-center py-1 rounded-xl text-brand-600 bg-brand-50/70 font-semibold transition active:scale-95">
+      <button type="button" id="navBtnTimetable" onclick="switchMainTab('timetable')" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-brand-600 bg-brand-50/70 font-semibold transition active:scale-95">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M3 14h18m-9-4v8m-7 4h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
-        <span class="text-[10px] tracking-tight">時間割</span>
+        <span class="text-[11px] tracking-tight">時間割</span>
       </button>
 
       <!-- 2. Tasks Tab -->
-      <button type="button" id="navBtnTasks" onclick="switchMainTab('tasks')" class="flex flex-col items-center justify-center py-1 rounded-xl text-slate-600 hover:text-brand-600 hover:bg-slate-50 transition active:scale-95 relative">
+      <button type="button" id="navBtnTasks" onclick="switchMainTab('tasks')" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-600 hover:text-brand-600 hover:bg-slate-50 transition active:scale-95 relative">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
         </svg>
-        <span class="text-[10px] tracking-tight">タスク</span>
-        <span id="navTaskBadge" class="hidden absolute top-1 right-3 w-2 h-2 rounded-full bg-rose-500"></span>
+        <span class="text-[11px] tracking-tight">タスク</span>
+        <span id="navTaskBadge" class="hidden absolute top-1.5 right-4 w-2 h-2 rounded-full bg-rose-500"></span>
       </button>
 
       <!-- 3. Portal Link -->
-      <a href="https://uportal.kumamoto-u.ac.jp/uPortal/render.userLayoutRootNode.uP" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center justify-center py-1 rounded-xl text-slate-600 hover:text-brand-600 hover:bg-slate-50 transition active:scale-95">
+      <a href="https://uportal.kumamoto-u.ac.jp/uPortal/render.userLayoutRootNode.uP" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-600 hover:text-brand-600 hover:bg-slate-50 transition active:scale-95">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
           <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
         </svg>
-        <span class="text-[10px] tracking-tight">ポータル</span>
+        <span class="text-[11px] tracking-tight">ポータル</span>
       </a>
 
       <!-- 4. Moodle Link -->
-      <a href="https://md.kumamoto-u.ac.jp/my/" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center justify-center py-1 rounded-xl text-slate-600 hover:text-brand-600 hover:bg-slate-50 transition active:scale-95">
+      <a href="https://md.kumamoto-u.ac.jp/my/" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-600 hover:text-brand-600 hover:bg-slate-50 transition active:scale-95">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
         </svg>
-        <span class="text-[10px] tracking-tight">Moodle</span>
+        <span class="text-[11px] tracking-tight">Moodle</span>
       </a>
-
-      <!-- 5. Share Timetable -->
-      <button type="button" onclick="openShareModal()" class="flex flex-col items-center justify-center py-1 rounded-xl text-brand-600 hover:bg-brand-50 transition active:scale-95">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-        </svg>
-        <span class="text-[10px] tracking-tight">共有</span>
-      </button>
     </div>
   </nav>
 
@@ -457,7 +457,7 @@
         </div>
         <div class="flex gap-2">
           <span class="font-bold text-brand-600 shrink-0">5.</span>
-          <div><strong class="text-slate-800">友人に共有：</strong>下部の「時間割を共有」を押すと表示される手順通りに、サイトURLとバックアップコードを送信するだけで丸ごと共有できます。</div>
+          <div><strong class="text-slate-800">友人に共有：</strong>上部の「共有」を押すと表示される手順通りに、サイトURLとバックアップコードを送信するだけで丸ごと共有できます。</div>
         </div>
 
         <!-- iOS Home Screen App Guide -->
@@ -685,8 +685,8 @@
         vTasks.classList.add('hidden');
         footer.classList.remove('hidden');
 
-        navTimetable.className = "flex flex-col items-center justify-center py-1 rounded-xl text-brand-600 bg-brand-50/70 font-semibold transition active:scale-95";
-        navTasks.className = "flex flex-col items-center justify-center py-1 rounded-xl text-slate-600 hover:text-brand-600 hover:bg-slate-50 transition active:scale-95 relative";
+        navTimetable.className = "flex flex-col items-center justify-center py-1.5 rounded-xl text-brand-600 bg-brand-50/70 font-semibold transition active:scale-95";
+        navTasks.className = "flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-600 hover:text-brand-600 hover:bg-slate-50 transition active:scale-95 relative";
 
         ttTopActions.classList.remove('hidden');
         ttTopActions.classList.add('flex');
@@ -701,8 +701,8 @@
         vTasks.classList.remove('hidden');
         footer.classList.add('hidden');
 
-        navTasks.className = "flex flex-col items-center justify-center py-1 rounded-xl text-brand-600 bg-brand-50/70 font-semibold transition active:scale-95 relative";
-        navTimetable.className = "flex flex-col items-center justify-center py-1 rounded-xl text-slate-600 hover:text-brand-600 hover:bg-slate-50 transition active:scale-95";
+        navTasks.className = "flex flex-col items-center justify-center py-1.5 rounded-xl text-brand-600 bg-brand-50/70 font-semibold transition active:scale-95 relative";
+        navTimetable.className = "flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-600 hover:text-brand-600 hover:bg-slate-50 transition active:scale-95";
 
         ttTopActions.classList.add('hidden');
         ttTopActions.classList.remove('flex');
@@ -1522,7 +1522,6 @@
     function openAddTaskModal() {
       document.getElementById('inputTaskName').value = '';
 
-      // Set default deadline to tomorrow 23:59
       const d = new Date();
       d.setDate(d.getDate() + 1);
       const yyyy = d.getFullYear();
@@ -1530,7 +1529,6 @@
       const dd = String(d.getDate()).padStart(2, '0');
       document.getElementById('inputTaskDeadline').value = `${yyyy}-${mm}-${dd}T23:59`;
 
-      // Populate current timetable subjects
       const select = document.getElementById('selectTaskSubject');
       select.innerHTML = '<option value="">(紐付けなし)</option>';
 
