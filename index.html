@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>UniSchedule - Moodle Launcher & Timetable</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Zen Kaku Gothic New"', '"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #f8fafc;
+      color: #1e293b;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .timetable-grid {
+      display: grid;
+      grid-template-columns: 46px repeat(5, minmax(0, 1fr));
+      gap: 6px;
+    }
+    @media (min-width: 640px) {
+      .timetable-grid {
+        gap: 8px;
+        grid-template-columns: 56px repeat(5, minmax(0, 1fr));
+      }
+    }
+    .card-touch {
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .card-touch:active {
+      transform: scale(0.97);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center">
+
+  <!-- Top Container -->
+  <div class="w-full max-w-2xl min-h-screen bg-white sm:my-4 sm:rounded-3xl sm:shadow-lg sm:border sm:border-slate-100 flex flex-col pb-8">
+    
+    <!-- Top Bar: Today Date & Quick Action Buttons -->
+    <header class="px-4 sm:px-6 pt-5 pb-4 border-b border-slate-100 flex flex-col gap-2">
+      <div class="flex items-center justify-between">
+        <!-- Live Date & Day Badge -->
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+          <span id="currentDateDisplay" class="text-xs font-semibold text-slate-500 tracking-wide">
+            <!-- 2026年10月28日 水曜日 -->
+          </span>
+        </div>
+
+        <!-- Action Buttons (Share & Edit Toggle) -->
+        <div class="flex items-center gap-2">
+          <!-- Share Button -->
+          <button onclick="openShareModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 hover:bg-brand-100 border border-brand-200 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+            <span>時間割を共有</span>
+          </button>
+
+          <!-- Edit Mode Toggle -->
+          <button id="editToggleBtn" onclick="toggleEditMode()" class="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200 transition">
+            <svg id="editIcon" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            <span id="editBtnText">コマ編集</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Term Title & Quick Hint -->
+      <div class="flex items-baseline justify-between mt-1">
+        <div>
+          <h1 id="termTitleDisplay" class="text-lg font-bold text-slate-800 tracking-tight">2026年 3学期</h1>
+          <p class="text-[11px] text-slate-400 mt-0.5">タップでMoodleページへ直行。未登録はURL設定画面が開きます。</p>
+        </div>
+        <button onclick="openTermNameModal()" class="text-[11px] text-slate-400 hover:text-slate-600 underline">学期名変更</button>
+      </div>
+    </header>
+
+    <!-- Notification Banner for Shared Links / Imports -->
+    <div id="sharedNoticeBanner" class="hidden bg-emerald-50 border-b border-emerald-200 px-4 py-2.5 text-xs text-emerald-800 flex items-center justify-between">
+      <div class="flex items-center gap-1.5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-emerald-600 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+        </svg>
+        <span>共有された時間割を読み込みました！</span>
+      </div>
+      <button onclick="dismissSharedNotice()" class="text-emerald-700 font-bold hover:underline">閉じる</button>
+    </div>
+
+    <!-- Edit Mode Active Notification -->
+    <div id="editModeBanner" class="hidden bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-800 flex items-center justify-between">
+      <div class="flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+        <span class="font-bold">編集モード中:</span> コマをタップして教科名・教室・Moodle URLを変更できます
+      </div>
+      <button onclick="toggleEditMode()" class="text-amber-900 font-bold underline">完了</button>
+    </div>
+
+    <!-- Timetable Area -->
+    <main class="flex-1 px-3 sm:px-6 pt-3 pb-6 flex flex-col">
+      <!-- Weekday Header Row -->
+      <div class="timetable-grid mb-2 items-center text-center">
+        <div></div> <!-- Period column corner -->
+        <div id="dayCol-0" class="py-1 flex flex-col items-center">
+          <span class="day-pill text-xs font-bold text-slate-500 px-2 py-0.5 rounded-full transition">月</span>
+        </div>
+        <div id="dayCol-1" class="py-1 flex flex-col items-center">
+          <span class="day-pill text-xs font-bold text-slate-500 px-2 py-0.5 rounded-full transition">火</span>
+        </div>
+        <div id="dayCol-2" class="py-1 flex flex-col items-center">
+          <span class="day-pill text-xs font-bold text-slate-500 px-2 py-0.5 rounded-full transition">水</span>
+        </div>
+        <div id="dayCol-3" class="py-1 flex flex-col items-center">
+          <span class="day-pill text-xs font-bold text-slate-500 px-2 py-0.5 rounded-full transition">木</span>
+        </div>
+        <div id="dayCol-4" class="py-1 flex flex-col items-center">
+          <span class="day-pill text-xs font-bold text-slate-500 px-2 py-0.5 rounded-full transition">金</span>
+        </div>
+      </div>
+
+      <!-- Periods Grid (1 to 6) -->
+      <div id="timetableRows" class="flex flex-col gap-1.5 sm:gap-2 flex-1">
+        <!-- Dynamically generated rows -->
+      </div>
+    </main>
+
+    <!-- Footer Utility Links -->
+    <footer class="px-4 sm:px-6 pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+      <div class="flex items-center gap-3">
+        <button onclick="openSubjectUrlListModal()" class="hover:text-slate-600 font-medium">登録URL一覧</button>
+        <span>•</span>
+        <button onclick="openBackupModal()" class="hover:text-slate-600 font-medium">テキスト入出力</button>
+      </div>
+      <button onclick="openResetModal()" class="text-slate-400 hover:text-red-500">初期化</button>
+    </footer>
+
+  </div>
+
+  <!-- MODAL 1: Edit & Set Moodle URL -->
+  <div id="classModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl overflow-hidden border border-slate-100">
+      <div class="bg-slate-50 px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
+        <span id="modalSlotHeader" class="text-xs font-bold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-full">
+          月曜 1限 (08:45~10:15)
+        </span>
+        <button onclick="closeClassModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4">
+        <!-- Notice if opened because URL is missing -->
+        <div id="modalMissingPrompt" class="hidden bg-brand-50 text-brand-800 border border-brand-200 rounded-xl p-3 text-xs leading-relaxed">
+          💡 この教科のMoodle URLがまだ設定されていません。URLを一度登録すると、次回からタップ1回で直接開けるようになります！
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1">教科名</label>
+          <input id="inputSubject" type="text" placeholder="例: 統計学演習II" class="w-full text-sm border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1">教室 / 教室番号</label>
+          <input id="inputRoom" type="text" placeholder="例: 2-1" class="w-full text-sm border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500">
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-xs font-bold text-slate-600">Moodle 講義ページURL</label>
+            <span class="text-[10px] text-slate-400">同名科目に自動連動</span>
+          </div>
+          <input id="inputUrl" type="url" placeholder="https://moodle.../course/view.php?id=..." class="w-full text-sm border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 font-mono text-xs">
+        </div>
+
+        <div class="pt-2 flex gap-2">
+          <button onclick="clearSlot()" class="px-3 py-2.5 rounded-xl border border-rose-200 text-rose-600 text-xs font-bold hover:bg-rose-50 transition">
+            空きコマ
+          </button>
+          <button id="btnSaveAndOpen" onclick="saveAndOpenModal()" class="hidden flex-1 bg-emerald-600 text-white text-xs font-bold py-2.5 rounded-xl hover:bg-emerald-700 transition">
+            保存して開く ↗
+          </button>
+          <button onclick="saveModal()" class="flex-1 bg-brand-600 text-white text-xs font-bold py-2.5 rounded-xl hover:bg-brand-700 transition">
+            保存する
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: Share Timetable Modal -->
+  <div id="shareModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl overflow-hidden border border-slate-100 p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-800">時間割の共有</h3>
+            <p class="text-[11px] text-slate-400">リンクを送るだけで友人に共有できます</p>
+          </div>
+        </div>
+        <button onclick="closeShareModal()" class="text-slate-400 hover:text-slate-600">✕</button>
+      </div>
+
+      <p class="text-xs text-slate-600 leading-relaxed">
+        現在作成されている時間割とMoodleのURL設定がすべてこのリンクに含まれています。受け取った人はリンクを開くだけで自分の画面に反映できます。
+      </p>
+
+      <div class="space-y-1.5">
+        <label class="text-[11px] font-bold text-slate-500">共有URL</label>
+        <div class="relative">
+          <input id="shareUrlInput" type="text" readonly class="w-full text-xs font-mono bg-slate-50 border border-slate-200 rounded-xl p-2.5 pr-20 text-slate-600 select-all">
+          <button onclick="copyShareUrl()" class="absolute right-1 top-1 bottom-1 px-3 bg-brand-600 text-white text-xs font-bold rounded-lg hover:bg-brand-700 transition">
+            コピー
+          </button>
+        </div>
+      </div>
+
+      <div class="pt-2">
+        <button onclick="closeShareModal()" class="w-full py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition">
+          閉じる
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: Term Name Edit -->
+  <div id="termNameModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-xs rounded-2xl shadow-xl overflow-hidden border border-slate-100 p-4 space-y-3">
+      <h3 class="text-xs font-bold text-slate-800">学期名の変更</h3>
+      <input id="inputTermTitle" type="text" placeholder="例: 2026年 3学期" class="w-full text-sm border border-slate-200 rounded-xl p-2.5">
+      <div class="flex gap-2">
+        <button onclick="closeTermNameModal()" class="flex-1 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold">キャンセル</button>
+        <button onclick="saveTermTitle()" class="flex-1 py-2 rounded-xl bg-brand-600 text-white text-xs font-bold">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: Registered URLs List -->
+  <div id="urlListModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden border border-slate-100 flex flex-col max-h-[80vh]">
+      <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
+        <h3 class="text-sm font-bold text-slate-800">登録済みMoodle URL一覧</h3>
+        <button onclick="closeUrlListModal()" class="text-slate-400 hover:text-slate-600">✕</button>
+      </div>
+      <div id="urlListContainer" class="p-4 space-y-2.5 overflow-y-auto flex-1">
+        <!-- Dynamically rendered -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 5: JSON Backup / Restore -->
+  <div id="backupModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl overflow-hidden border border-slate-100 p-5 space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold text-slate-800">バックアップコード</h3>
+        <button onclick="closeBackupModal()" class="text-slate-400 hover:text-slate-600">✕</button>
+      </div>
+      <p class="text-xs text-slate-500">コードをコピーして保存したり、他デバイスのコードを貼り付けて復元できます。</p>
+      <textarea id="backupTextarea" rows="4" class="w-full text-xs font-mono bg-slate-50 border border-slate-200 rounded-xl p-2.5"></textarea>
+      <div class="flex gap-2">
+        <button onclick="copyBackupJson()" class="flex-1 py-2 bg-brand-50 text-brand-700 border border-brand-200 rounded-xl text-xs font-bold">コードをコピー</button>
+        <button onclick="importBackupJson()" class="flex-1 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold">コードを適用</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 6: Reset Confirmation -->
+  <div id="resetModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-xs rounded-2xl shadow-xl overflow-hidden border border-slate-100 p-5 space-y-3">
+      <h3 class="text-sm font-bold text-slate-800">初期化の確認</h3>
+      <p class="text-xs text-slate-500">初期サンプルデータ（2026年 3学期）に戻しますか？</p>
+      <div class="flex gap-2 pt-1">
+        <button onclick="closeResetModal()" class="flex-1 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold">キャンセル</button>
+        <button onclick="confirmReset()" class="flex-1 py-2 rounded-xl bg-rose-600 text-white text-xs font-bold">リセット</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Element -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden bg-slate-800 text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg">
+    通知メッセージ
+  </div>
+
+  <script>
+    // --- TIMETABLE CONFIGURATION ---
+    const PERIODS = [
+      { num: 1, start: '08:45', end: '10:15' },
+      { num: 2, start: '10:30', end: '12:00' },
+      { num: 3, start: '13:00', end: '14:30' },
+      { num: 4, start: '14:45', end: '16:15' },
+      { num: 5, start: '16:30', end: '18:00' },
+      { num: 6, start: '18:15', end: '19:45' }
+    ];
+
+    const DAYS = ['月', '火', '水', '木', '金'];
+    const DAY_NAMES_JA = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
+
+    const DEFAULT_TIMETABLE = {
+      term: "2026年 3学期",
+      classes: {
+        "0-0": { subject: "統計学演習II", room: "2-1" },
+        "0-2": { subject: "論理回路", room: "223" },
+        "0-3": { subject: "論理回路演習", room: "223" },
+        "1-0": { subject: "DSゼミナールII", room: "3-1" },
+        "1-1": { subject: "DSゼミナールII", room: "3-1" },
+        "1-3": { subject: "アルゴリズム論II", room: "1-1" },
+        "2-2": { subject: "プログラミング演習II", room: "情報センター1" },
+        "2-3": { subject: "実用英語II", room: "2-1" },
+        "3-0": { subject: "統計学II", room: "235" },
+        "3-1": { subject: "アナログ電子回路", room: "223" },
+        "3-2": { subject: "論理回路", room: "223" },
+        "3-3": { subject: "論理回路演習", room: "223" },
+        "4-0": { subject: "アナログ電子回路", room: "223" },
+        "4-3": { subject: "データ分析II", room: "221" }
+      },
+      subjectUrls: {}
+    };
+
+    const STORAGE_KEY = 'unisched_moodle_data_v2';
+
+    // Application State
+    let appState = JSON.parse(JSON.stringify(DEFAULT_TIMETABLE));
+    let isEditMode = false;
+    let activeSlotKey = null;
+
+    // --- INITIALIZATION ---
+    window.onload = function() {
+      // 1. Check for shared URL hash or query
+      const imported = checkShareUrl();
+      if (!imported) {
+        loadFromStorage();
+      }
+
+      // 2. Render Header Date and Highlighting
+      renderHeaderDateAndDay();
+
+      // 3. Render Grid
+      renderTimetable();
+    };
+
+    // --- DATE & DAY HIGHLIGHTING ---
+    function renderHeaderDateAndDay() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth() + 1;
+      const date = now.getDate();
+      const dayNum = now.getDay(); // 0(日)..6(土)
+
+      // Display format: 2026年10月28日 水曜日
+      const dateStr = `${year}年${month}月${date}日 ${DAY_NAMES_JA[dayNum]}`;
+      document.getElementById('currentDateDisplay').textContent = dateStr;
+
+      // Map Mon(1)..Fri(5) to 0..4
+      const dayIdx = (dayNum >= 1 && dayNum <= 5) ? (dayNum - 1) : null;
+
+      DAYS.forEach((_, idx) => {
+        const colHeader = document.getElementById(`dayCol-${idx}`);
+        if (!colHeader) return;
+        const pill = colHeader.querySelector('.day-pill');
+        if (idx === dayIdx) {
+          pill.className = "day-pill text-xs font-bold bg-brand-600 text-white px-2.5 py-0.5 rounded-full shadow-sm";
+        } else {
+          pill.className = "day-pill text-xs font-bold text-slate-500 px-2 py-0.5 rounded-full";
+        }
+      });
+
+      window._currentTodayIdx = dayIdx;
+    }
+
+    // --- TIMETABLE RENDERING ---
+    function renderTimetable() {
+      document.getElementById('termTitleDisplay').textContent = appState.term || '2026年 3学期';
+      const container = document.getElementById('timetableRows');
+      container.innerHTML = '';
+
+      const todayIdx = window._currentTodayIdx;
+
+      PERIODS.forEach((p, pIdx) => {
+        const row = document.createElement('div');
+        row.className = 'timetable-grid flex-1 min-h-[92px] sm:min-h-[104px]';
+
+        // Time / Period Column
+        const timeCol = document.createElement('div');
+        timeCol.className = 'flex flex-col items-center justify-center text-center select-none pr-1';
+        timeCol.innerHTML = `
+          <span class="text-sm sm:text-base font-bold text-slate-700 leading-tight">${p.num}</span>
+          <span class="text-[9px] sm:text-[10px] text-slate-400 font-medium leading-none mt-1">${p.start}</span>
+          <span class="text-[8px] text-slate-300 my-0.5">|</span>
+          <span class="text-[9px] sm:text-[10px] text-slate-400 font-medium leading-none">${p.end}</span>
+        `;
+        row.appendChild(timeCol);
+
+        // 5 Weekday Columns
+        for (let dIdx = 0; dIdx < 5; dIdx++) {
+          const key = `${dIdx}-${pIdx}`;
+          const item = appState.classes[key];
+          const isToday = (dIdx === todayIdx);
+
+          const cell = document.createElement('button');
+          cell.type = 'button';
+          cell.onclick = () => onSlotClick(dIdx, pIdx);
+
+          if (item && item.subject && item.subject.trim() !== '') {
+            const hasUrl = Boolean(getUrlForSubject(item.subject));
+            
+            // Modern card styling (Subtle indigo accents, clear text)
+            let cardClasses = 'card-touch rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-between text-center w-full h-full relative ';
+            
+            if (isToday) {
+              cardClasses += 'bg-indigo-50/90 border border-brand-200/90 hover:bg-indigo-100/70 shadow-sm';
+            } else {
+              cardClasses += 'bg-slate-50 border border-slate-200/80 hover:bg-slate-100 shadow-[0_1px_2px_rgba(0,0,0,0.02)]';
+            }
+            cell.className = cardClasses;
+
+            // Indicator of URL status / edit icon
+            let indicator = '';
+            if (isEditMode) {
+              indicator = `<span class="absolute top-1.5 right-1.5 text-[10px] text-brand-600 font-bold">✎</span>`;
+            } else if (hasUrl) {
+              indicator = `<span title="Moodle登録済" class="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-brand-600"></span>`;
+            }
+
+            cell.innerHTML = `
+              ${indicator}
+              <div class="flex-1 flex items-center justify-center w-full px-0.5">
+                <span class="text-xs sm:text-[13px] font-bold text-slate-800 leading-snug break-words line-clamp-3">${escapeHtml(item.subject)}</span>
+              </div>
+              <div class="w-full bg-white/90 border border-slate-200/60 rounded-full py-0.5 px-1.5 truncate mt-1">
+                <span class="text-[9.5px] sm:text-[10px] font-semibold text-slate-500 block truncate">${escapeHtml(item.room || '')}</span>
+              </div>
+            `;
+          } else {
+            // Empty Slot
+            let emptyClasses = 'card-touch rounded-2xl w-full h-full flex items-center justify-center border transition ';
+            if (isToday) {
+              emptyClasses += 'bg-indigo-50/20 border-indigo-100 hover:bg-indigo-50/50';
+            } else {
+              emptyClasses += 'bg-white border-slate-100 hover:bg-slate-50';
+            }
+            cell.className = emptyClasses;
+            if (isEditMode) {
+              cell.innerHTML = `<span class="text-slate-300 text-lg font-light leading-none">+</span>`;
+            }
+          }
+
+          row.appendChild(cell);
+        }
+
+        container.appendChild(row);
+      });
+    }
+
+    function getUrlForSubject(subjectName) {
+      if (!subjectName) return '';
+      return appState.subjectUrls[subjectName.trim()] || '';
+    }
+
+    // --- SLOT INTERACTION ---
+    function onSlotClick(dIdx, pIdx) {
+      const key = `${dIdx}-${pIdx}`;
+      const item = appState.classes[key];
+
+      if (isEditMode) {
+        openClassModal(dIdx, pIdx, false);
+        return;
+      }
+
+      // Normal Mode
+      if (!item || !item.subject) {
+        return; // Empty slot
+      }
+
+      const url = getUrlForSubject(item.subject);
+      if (url && url.trim() !== '') {
+        // Direct Moodle Jump
+        window.open(url.trim(), '_blank', 'noopener,noreferrer');
+      } else {
+        // Prompt to configure URL once
+        openClassModal(dIdx, pIdx, true);
+      }
+    }
+
+    // --- MODAL: CLASS & URL CONFIGURATION ---
+    function openClassModal(dIdx, pIdx, missingPrompt) {
+      activeSlotKey = `${dIdx}-${pIdx}`;
+      const item = appState.classes[activeSlotKey] || { subject: '', room: '' };
+      const period = PERIODS[pIdx];
+
+      document.getElementById('modalSlotHeader').textContent = `${DAYS[dIdx]}曜 ${period.num}限 (${period.start}~${period.end})`;
+      document.getElementById('inputSubject').value = item.subject || '';
+      document.getElementById('inputRoom').value = item.room || '';
+      document.getElementById('inputUrl').value = getUrlForSubject(item.subject);
+
+      const prompt = document.getElementById('modalMissingPrompt');
+      const btnOpen = document.getElementById('btnSaveAndOpen');
+
+      if (missingPrompt) {
+        prompt.classList.remove('hidden');
+        btnOpen.classList.remove('hidden');
+      } else {
+        prompt.classList.add('hidden');
+        btnOpen.classList.add('hidden');
+      }
+
+      const modal = document.getElementById('classModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      if (missingPrompt) {
+        setTimeout(() => document.getElementById('inputUrl').focus(), 80);
+      }
+    }
+
+    function closeClassModal() {
+      const modal = document.getElementById('classModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      activeSlotKey = null;
+    }
+
+    function saveModal() {
+      if (!activeSlotKey) return false;
+      const subject = document.getElementById('inputSubject').value.trim();
+      const room = document.getElementById('inputRoom').value.trim();
+      let url = document.getElementById('inputUrl').value.trim();
+
+      if (url && !/^https?:\/\//i.test(url)) {
+        url = 'https://' + url;
+      }
+
+      if (!subject) {
+        delete appState.classes[activeSlotKey];
+      } else {
+        appState.classes[activeSlotKey] = { subject, room };
+        appState.subjectUrls[subject] = url;
+      }
+
+      saveToStorage();
+      renderTimetable();
+      closeClassModal();
+      showToast('保存しました');
+      return url;
+    }
+
+    function saveAndOpenModal() {
+      const url = saveModal();
+      if (url) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+      }
+    }
+
+    function clearSlot() {
+      if (!activeSlotKey) return;
+      delete appState.classes[activeSlotKey];
+      saveToStorage();
+      renderTimetable();
+      closeClassModal();
+      showToast('空きコマに設定しました');
+    }
+
+    // --- SHARING FEATURE VIA URL ---
+    function openShareModal() {
+      // Encode entire state into base64 JSON
+      const jsonStr = JSON.stringify(appState);
+      const encoded = btoa(encodeURIComponent(jsonStr));
+
+      // Build full shareable URL using hash (#data=...)
+      const baseUrl = window.location.origin + window.location.pathname;
+      const shareUrl = `${baseUrl}#timetable=${encoded}`;
+
+      const shareInput = document.getElementById('shareUrlInput');
+      shareInput.value = shareUrl;
+
+      const modal = document.getElementById('shareModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeShareModal() {
+      const modal = document.getElementById('shareModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function copyShareUrl() {
+      const input = document.getElementById('shareUrlInput');
+      input.select();
+      try {
+        document.execCommand('copy');
+        showToast('共有リンクをクリップボードにコピーしました！');
+      } catch (e) {
+        showToast('URLを直接選択してコピーしてください');
+      }
+    }
+
+    function checkShareUrl() {
+      const hash = window.location.hash;
+      if (!hash || !hash.includes('timetable=')) return false;
+
+      try {
+        const rawParam = hash.split('timetable=')[1];
+        if (!rawParam) return false;
+        const decodedJson = decodeURIComponent(atob(rawParam));
+        const parsed = JSON.parse(decodedJson);
+
+        if (parsed && parsed.classes) {
+          appState = parsed;
+          saveToStorage();
+          // Clear hash to prevent repeated reload overwrites
+          history.replaceState(null, '', window.location.pathname);
+          document.getElementById('sharedNoticeBanner').classList.remove('hidden');
+          return true;
+        }
+      } catch (e) {
+        console.error('Error importing timetable from hash:', e);
+      }
+      return false;
+    }
+
+    function dismissSharedNotice() {
+      document.getElementById('sharedNoticeBanner').classList.add('hidden');
+    }
+
+    // --- TERM NAME MODAL ---
+    function openTermNameModal() {
+      document.getElementById('inputTermTitle').value = appState.term || '';
+      const m = document.getElementById('termNameModal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+    function closeTermNameModal() {
+      const m = document.getElementById('termNameModal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+    function saveTermTitle() {
+      const val = document.getElementById('inputTermTitle').value.trim();
+      if (val) {
+        appState.term = val;
+        saveToStorage();
+        renderTimetable();
+      }
+      closeTermNameModal();
+    }
+
+    // --- EDIT MODE TOGGLE ---
+    function toggleEditMode() {
+      isEditMode = !isEditMode;
+      const btn = document.getElementById('editToggleBtn');
+      const text = document.getElementById('editBtnText');
+      const banner = document.getElementById('editModeBanner');
+
+      if (isEditMode) {
+        btn.className = "flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-500 text-white border border-amber-600 transition";
+        text.textContent = "編集完了";
+        banner.classList.remove('hidden');
+      } else {
+        btn.className = "flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200 transition";
+        text.textContent = "コマ編集";
+        banner.classList.add('hidden');
+      }
+      renderTimetable();
+    }
+
+    // --- URL LIST MODAL ---
+    function openSubjectUrlListModal() {
+      const list = document.getElementById('urlListContainer');
+      list.innerHTML = '';
+
+      const subjects = new Set();
+      Object.values(appState.classes).forEach(c => {
+        if (c && c.subject) subjects.add(c.subject.trim());
+      });
+
+      if (subjects.size === 0) {
+        list.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">登録された講義がありません</p>`;
+      } else {
+        subjects.forEach(sub => {
+          const url = appState.subjectUrls[sub] || '';
+          const row = document.createElement('div');
+          row.className = 'p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5';
+          row.innerHTML = `
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-800">${escapeHtml(sub)}</span>
+              ${url ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="text-xs text-brand-600 font-bold hover:underline">テスト開く ↗</a>` : `<span class="text-[10px] text-slate-400">未設定</span>`}
+            </div>
+            <input type="url" value="${escapeHtml(url)}" placeholder="Moodle URLを貼り付け"
+              onchange="onSubjectUrlQuickUpdate('${escapeJs(sub)}', this.value)"
+              class="w-full text-xs font-mono bg-white border border-slate-300 rounded-lg px-2.5 py-1.5">
+          `;
+          list.appendChild(row);
+        });
+      }
+
+      const m = document.getElementById('urlListModal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+
+    function onSubjectUrlQuickUpdate(subject, url) {
+      let clean = url.trim();
+      if (clean && !/^https?:\/\//i.test(clean)) {
+        clean = 'https://' + clean;
+      }
+      appState.subjectUrls[subject] = clean;
+      saveToStorage();
+      renderTimetable();
+      showToast(`「${subject}」のURLを更新しました`);
+    }
+
+    function closeUrlListModal() {
+      const m = document.getElementById('urlListModal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    // --- JSON BACKUP MODAL ---
+    function openBackupModal() {
+      document.getElementById('backupTextarea').value = JSON.stringify(appState, null, 2);
+      const m = document.getElementById('backupModal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+    function closeBackupModal() {
+      const m = document.getElementById('backupModal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+    function copyBackupJson() {
+      const area = document.getElementById('backupTextarea');
+      area.select();
+      try {
+        document.execCommand('copy');
+        showToast('バックアップコードをコピーしました');
+      } catch (e) {
+        showToast('テキストを選択してコピーしてください');
+      }
+    }
+    function importBackupJson() {
+      try {
+        const val = document.getElementById('backupTextarea').value.trim();
+        const parsed = JSON.parse(val);
+        if (parsed && parsed.classes) {
+          appState = parsed;
+          saveToStorage();
+          renderTimetable();
+          closeBackupModal();
+          showToast('データを復元しました');
+        }
+      } catch (e) {
+        showToast('コードの形式が不正です');
+      }
+    }
+
+    // --- RESET CONFIRMATION ---
+    function openResetModal() {
+      const m = document.getElementById('resetModal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+    function closeResetModal() {
+      const m = document.getElementById('resetModal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+    function confirmReset() {
+      appState = JSON.parse(JSON.stringify(DEFAULT_TIMETABLE));
+      saveToStorage();
+      renderTimetable();
+      closeResetModal();
+      showToast('時間割をリセットしました');
+    }
+
+    // --- STORAGE ---
+    function loadFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          appState = { ...DEFAULT_TIMETABLE, ...parsed };
+        }
+      } catch (e) {
+        console.error('Failed to load storage:', e);
+      }
+    }
+
+    function saveToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+      } catch (e) {
+        console.error('Failed to save storage:', e);
+      }
+    }
+
+    // --- TOAST ---
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.remove('hidden');
+      clearTimeout(window._toastTimeout);
+      window._toastTimeout = setTimeout(() => {
+        t.classList.add('hidden');
+      }, 2200);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function escapeJs(str) {
+      if (!str) return '';
+      return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    }
+  </script>
+</body>
+</html>
