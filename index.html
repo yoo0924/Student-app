@@ -34,7 +34,6 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
-    /* Safe padding for modern iPhone home bar */
     .pb-safe {
       padding-bottom: calc(env(safe-area-inset-bottom, 16px) + 68px);
     }
@@ -56,7 +55,7 @@
         </h1>
       </div>
 
-      <!-- Action Buttons depending on Active Tab -->
+      <!-- Action Buttons -->
       <div class="flex items-center gap-1.5">
         <!-- Timetable buttons: 使い方 -> 共有 -> コマ編集 -->
         <div id="timetableHeaderActions" class="flex items-center gap-1.5">
@@ -136,7 +135,6 @@
 
   <!-- ==================== PAGE 2: TASK MANAGEMENT VIEW ==================== -->
   <main id="viewTasks" class="hidden flex-1 max-w-4xl w-full mx-auto p-3 sm:p-5 flex flex-col">
-    <!-- Task Header stats / status banner -->
     <div class="flex items-center justify-between bg-white rounded-xl p-3 border border-slate-200 shadow-sm mb-3">
       <div class="flex items-center gap-2">
         <div class="p-2 rounded-lg bg-indigo-50 text-indigo-600">
@@ -153,22 +151,20 @@
       </button>
     </div>
 
-    <!-- Task List (Main scroll area) -->
-    <div class="flex-1 overflow-y-auto space-y-2" id="taskListContainer">
-      <!-- Injected via renderTasks() -->
-    </div>
+    <!-- Task List -->
+    <div class="flex-1 overflow-y-auto space-y-2" id="taskListContainer"></div>
   </main>
 
   <!-- ==================== FIXED BOTTOM NAVIGATION ==================== -->
   <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 py-1.5 px-3 z-40">
     <div class="max-w-md mx-auto grid grid-cols-4 gap-1 text-center">
-      <!-- 1. Timetable Tab Switcher -->
+      <!-- 1. Timetable -->
       <button id="navBtnTimetable" onclick="switchTab('timetable')" class="flex flex-col items-center justify-center py-1 rounded-xl text-indigo-600 bg-indigo-50/70 font-semibold transition-all">
         <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 4h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
         <span class="text-[10px]">時間割</span>
       </button>
 
-      <!-- 2. Tasks Tab Switcher -->
+      <!-- 2. Tasks -->
       <button id="navBtnTasks" onclick="switchTab('tasks')" class="flex flex-col items-center justify-center py-1 rounded-xl text-slate-600 hover:text-indigo-600 transition-all relative">
         <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
         <span class="text-[10px]">タスク</span>
@@ -215,9 +211,7 @@
 
         <div>
           <label class="block text-xs font-bold text-slate-600 mb-1">紐付ける授業 (任意)</label>
-          <select id="taskInputSubject" class="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
-            <!-- Populated dynamically with subjects in timetable -->
-          </select>
+          <select id="taskInputSubject" class="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"></select>
           <p class="text-[10px] text-slate-400 mt-1">※ 時間割に登録されている授業のMoodleリンクにそのままジャンプできます。</p>
         </div>
       </div>
@@ -239,12 +233,12 @@
       <div class="text-xs text-slate-600 space-y-2.5 leading-relaxed">
         <div class="bg-indigo-50/70 p-2.5 rounded-xl border border-indigo-100">
           <p class="font-bold text-indigo-900 mb-1">💡 授業・Moodleとの連動</p>
-          <p class="text-slate-600">タスクを作成する際、時間割に登録してある授業を選択すると、タスク一覧の右側のボタンから**その授業のMoodleページへ一撃でアクセス**できます。</p>
+          <p class="text-slate-600">タスクを作成する際、時間割に登録してある授業を選択すると、タスク一覧の右側のボタンからその授業のMoodleページへ一撃でアクセスできます。</p>
         </div>
         <div class="space-y-1.5 pl-1">
           <p><strong>1. 自動並び替え:</strong> 提出期限が近い順に上から自動で並びます。</p>
-          <p><strong>2. 完了チェック:</strong> チェックを入れるとグレーアウトし、未完了タスクの下部に移動します。</p>
-          <p><strong>3. ゴミ箱ボタン:</strong> 上部のゴミ箱ボタンを押すと、完了マークの付いた不要なタスクだけを一括消去できます。</p>
+          <p><strong>2. 完了チェック:</strong> チェックを入れると取り消し線が入り、未完了タスクの下部に移動します。</p>
+          <p><strong>3. ゴミ箱ボタン:</strong> 上部のゴミ箱ボタンを押すと、完了マークの付いたタスクだけを一括消去できます。</p>
         </div>
       </div>
       <button onclick="closeTaskHelpModal()" class="mt-4 w-full py-2 bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-200 transition">閉じる</button>
@@ -409,12 +403,15 @@
   <!-- 7. BACKUP / TEXT I/O MODAL -->
   <div id="backupModal" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-3">
     <div class="bg-white w-full max-w-sm rounded-2xl p-5 shadow-2xl border border-slate-100 flex flex-col">
-      <h3 class="text-sm font-bold text-slate-800 mb-2">テキスト入出力 (バックアップ)</h3>
-      <p class="text-xs text-slate-500 mb-3">コードを全選択してコピーするか、貼り付けて「復元」を押してください。</p>
-      <textarea id="backupTextarea" rows="6" class="w-full text-[11px] font-mono p-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-3"></textarea>
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-sm font-bold text-slate-800">テキスト入出力 (バックアップ)</h3>
+        <button onclick="refreshBackupTextarea()" class="text-[11px] text-indigo-600 font-bold hover:underline">現在の状態を再表示</button>
+      </div>
+      <p class="text-xs text-slate-500 mb-2">コードをコピーするか、復元用コードを貼り付けて「復元を適用」を押してください。</p>
+      <textarea id="backupTextarea" rows="7" class="w-full text-[10px] font-mono p-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-3 bg-slate-50"></textarea>
       <div class="flex gap-2">
         <button onclick="closeBackupModal()" class="flex-1 py-1.5 text-xs text-slate-600 bg-slate-100 rounded-lg">閉じる</button>
-        <button onclick="restoreFromBackupText()" class="flex-1 py-1.5 text-xs font-semibold text-white bg-indigo-600 rounded-lg">復元を適用</button>
+        <button onclick="restoreFromBackupText()" class="flex-1 py-1.5 text-xs font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition">復元を適用</button>
       </div>
     </div>
   </div>
@@ -452,7 +449,6 @@
   <script>
     const STORAGE_KEY = 'kumamoto_u_timetable_v1';
 
-    // Standard Kumamoto Univ timetable periods (08:45 ~ 19:45)
     const DEFAULT_PERIODS = [
       { p: 1, start: "08:45", end: "10:15" },
       { p: 2, start: "10:30", end: "12:00" },
@@ -465,13 +461,12 @@
     const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri'];
     const DAY_NAMES = { mon: '月', tue: '火', wed: '水', thu: '木', fri: '金' };
 
-    // Initial state: Completely empty timetable
     let appState = {
       term: "2026年 3学期",
-      classes: {},        // e.g. "mon-1": { subject: "...", room: "..." }
-      subjectUrls: {},    // e.g. "科目名": "https://md..."
+      classes: {},
+      subjectUrls: {},
       periods: JSON.parse(JSON.stringify(DEFAULT_PERIODS)),
-      tasks: []           // e.g. [{ id, name, deadline, subject, completed: false }]
+      tasks: []
     };
 
     let isEditMode = false;
@@ -479,7 +474,6 @@
     let editingPeriodIndex = null;
     let currentTab = 'timetable';
 
-    // --- INITIALIZATION ---
     window.addEventListener('DOMContentLoaded', () => {
       loadState();
       updateHeaderDate();
@@ -488,17 +482,50 @@
       updateNavBadge();
     });
 
+    // Helper: Normalize incoming parsed data safely from any backup version
+    function normalizeStateData(parsed) {
+      if (!parsed || typeof parsed !== 'object') return null;
+
+      const result = {
+        term: parsed.term || "2026年 3学期",
+        classes: {},
+        subjectUrls: parsed.subjectUrls || {},
+        periods: JSON.parse(JSON.stringify(DEFAULT_PERIODS)),
+        tasks: Array.isArray(parsed.tasks) ? parsed.tasks : []
+      };
+
+      // 1. Process classes (supporting both object and older versions)
+      const rawClasses = parsed.classes || parsed.schedule || {};
+      if (typeof rawClasses === 'object' && rawClasses !== null) {
+        Object.keys(rawClasses).forEach(k => {
+          const item = rawClasses[k];
+          if (typeof item === 'string') {
+            result.classes[k] = { subject: item, room: '' };
+          } else if (item && typeof item === 'object') {
+            result.classes[k] = {
+              subject: item.subject || item.name || '',
+              room: item.room || item.place || ''
+            };
+          }
+        });
+      }
+
+      // 2. Process periods
+      if (Array.isArray(parsed.periods) && parsed.periods.length === 6) {
+        result.periods = parsed.periods;
+      }
+
+      return result;
+    }
+
     function loadState() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) {
           const parsed = JSON.parse(raw);
-          if (parsed && typeof parsed === 'object') {
-            appState.term = parsed.term || "2026年 3学期";
-            appState.classes = parsed.classes || {};
-            appState.subjectUrls = parsed.subjectUrls || {};
-            appState.periods = Array.isArray(parsed.periods) && parsed.periods.length === 6 ? parsed.periods : JSON.parse(JSON.stringify(DEFAULT_PERIODS));
-            appState.tasks = Array.isArray(parsed.tasks) ? parsed.tasks : [];
+          const normalized = normalizeStateData(parsed);
+          if (normalized) {
+            appState = normalized;
           }
         }
       } catch (e) {
@@ -514,7 +541,7 @@
       }
     }
 
-    // --- TAB SWITCHING (TIMETABLE vs TASKS) ---
+    // --- TAB SWITCHING ---
     function switchTab(tab) {
       currentTab = tab;
       const vTimetable = document.getElementById('viewTimetable');
@@ -557,7 +584,7 @@
       }
     }
 
-    // --- DATE & TODAY HIGHLIGHT ---
+    // --- DATE & HEADER ---
     function updateHeaderDate() {
       const now = new Date();
       const weekStrs = ['日', '月', '火', '水', '木', '金', '土'];
@@ -596,18 +623,18 @@
         const row = document.createElement('div');
         row.className = "grid grid-cols-custom divide-x divide-slate-100 min-h-[72px] sm:min-h-[82px]";
 
-        // Left Period Time Cell (Clickable to edit time)
+        // Left Time Cell
         const timeCell = document.createElement('div');
         timeCell.className = `flex flex-col items-center justify-center p-1 text-center select-none cursor-pointer hover:bg-slate-100/70 transition-colors ${isEditMode ? 'bg-amber-50/60' : 'bg-slate-50/50'}`;
         timeCell.onclick = () => openPeriodModal(idx);
         timeCell.innerHTML = `
           <div class="text-xs sm:text-sm font-bold text-slate-800">${period.p}</div>
           <div class="text-[9px] sm:text-[10px] text-slate-400 font-mono tracking-tighter leading-tight mt-0.5">${period.start}<br>|<br>${period.end}</div>
-          ${isEditMode ? '<span class="text-[8px] text-amber-600 mt-0.5">変更</span>' : ''}
+          ${isEditMode ? '<span class="text-[8px] text-amber-600 mt-0.5 font-bold">変更</span>' : ''}
         `;
         row.appendChild(timeCell);
 
-        // Monday ~ Friday Cells
+        // Days Cells
         DAYS.forEach(day => {
           const key = `${day}-${period.p}`;
           const item = appState.classes[key];
@@ -682,7 +709,7 @@
       renderTimetable();
     }
 
-    // --- CLASS EDIT MODAL & QUICK DUPLICATION ---
+    // --- CLASS EDIT MODAL ---
     function openClassModal(key) {
       editingCellKey = key;
       const [day, period] = key.split('-');
@@ -693,7 +720,6 @@
       document.getElementById('modalInputRoom').value = item.room || '';
       document.getElementById('modalInputUrl').value = item.subject ? (appState.subjectUrls[item.subject] || '') : '';
 
-      // Populate Quick Clone Pills
       const cloneSection = document.getElementById('cloneSection');
       const clonePills = document.getElementById('clonePills');
       clonePills.innerHTML = '';
@@ -806,7 +832,6 @@
 
       const tasks = appState.tasks || [];
 
-      // Sort tasks: Incomplete first (by earliest deadline), Completed last
       const sorted = [...tasks].sort((a, b) => {
         if (a.completed !== b.completed) {
           return a.completed ? 1 : -1;
@@ -847,31 +872,24 @@
         card.className = `p-3 rounded-xl border transition-all flex items-center justify-between gap-3 ${task.completed ? 'bg-slate-50/70 border-slate-200 opacity-60' : isOverdue ? 'bg-rose-50/40 border-rose-200 shadow-xs' : 'bg-white border-slate-200 shadow-xs hover:border-indigo-200'}`;
 
         card.innerHTML = `
-          <!-- Checkbox & Task details -->
           <div class="flex items-center gap-3 flex-1 min-w-0">
             <button onclick="toggleTaskCompletion('${task.id}')" class="shrink-0 w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${task.completed ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-slate-300 hover:border-indigo-500 bg-white'}">
               ${task.completed ? '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>' : ''}
             </button>
 
-            <!-- Order: Deadline -> Task name -> Subject -->
             <div class="flex-1 min-w-0">
               <div class="flex flex-wrap items-center gap-1.5 mb-0.5">
-                <!-- 1. Deadline -->
                 <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${isOverdue ? 'bg-rose-100 text-rose-700' : task.completed ? 'bg-slate-200 text-slate-500' : 'bg-indigo-100 text-indigo-700'}">
                   ${dlFormatted}
                 </span>
-                <!-- 3. Subject -->
                 ${task.subject ? `<span class="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded font-medium truncate max-w-[120px]">${escapeHtml(task.subject)}</span>` : ''}
               </div>
-
-              <!-- 2. Task Name -->
               <p class="text-xs sm:text-sm font-bold text-slate-800 truncate ${task.completed ? 'line-through text-slate-400' : ''}">
                 ${escapeHtml(task.name)}
               </p>
             </div>
           </div>
 
-          <!-- Right side: Jump to Moodle Button -->
           <div class="flex items-center gap-1.5 shrink-0">
             ${task.subject && hasUrl ? `
               <button onclick="openMoodleForSubject('${escapeHtml(task.subject)}')" class="flex items-center gap-1 px-2 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg text-xs font-semibold transition" title="この授業のMoodleを開く">
@@ -882,7 +900,6 @@
               <span class="text-[10px] text-slate-300 px-1.5 py-1">URL未登録</span>
             ` : ''}
 
-            <!-- Delete single task button -->
             <button onclick="deleteSingleTask('${task.id}')" class="p-1.5 text-slate-300 hover:text-rose-500 rounded-lg transition" title="削除">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
@@ -908,7 +925,6 @@
     function openAddTaskModal() {
       document.getElementById('taskInputName').value = '';
 
-      // Default deadline: tomorrow at 23:59
       const d = new Date();
       d.setDate(d.getDate() + 1);
       const yyyy = d.getFullYear();
@@ -916,7 +932,6 @@
       const dd = String(d.getDate()).padStart(2, '0');
       document.getElementById('taskInputDeadline').value = `${yyyy}-${mm}-${dd}T23:59`;
 
-      // Populate subject select from current timetable classes
       const select = document.getElementById('taskInputSubject');
       select.innerHTML = '<option value="">(紐付けなし)</option>';
 
@@ -1031,7 +1046,7 @@
       document.getElementById('taskHelpModal').classList.add('hidden');
     }
 
-    // --- SHARE MODAL (URL COPY + CODE) ---
+    // --- SHARE MODAL ---
     function openShareModal() {
       const baseSiteUrl = window.location.origin + window.location.pathname;
       document.getElementById('shareUrlDisplay').value = baseSiteUrl;
@@ -1048,7 +1063,6 @@
       document.getElementById('shareCodeDisplay').value = jsonStr;
       document.getElementById('shareModal').classList.remove('hidden');
 
-      // Auto copy the base web URL
       copyShareUrlOnly();
     }
 
@@ -1076,8 +1090,12 @@
 
     // --- BACKUP & RESTORE MODAL ---
     function openBackupModal() {
-      document.getElementById('backupTextarea').value = JSON.stringify(appState, null, 2);
+      refreshBackupTextarea();
       document.getElementById('backupModal').classList.remove('hidden');
+    }
+
+    function refreshBackupTextarea() {
+      document.getElementById('backupTextarea').value = JSON.stringify(appState, null, 2);
     }
 
     function closeBackupModal() {
@@ -1087,23 +1105,33 @@
     function restoreFromBackupText() {
       try {
         const text = document.getElementById('backupTextarea').value.trim();
-        if (!text) return;
-        const parsed = JSON.parse(text);
-        if (parsed && typeof parsed === 'object') {
-          appState.term = parsed.term || "2026年 3学期";
-          appState.classes = parsed.classes || {};
-          appState.subjectUrls = parsed.subjectUrls || {};
-          appState.periods = Array.isArray(parsed.periods) ? parsed.periods : JSON.parse(JSON.stringify(DEFAULT_PERIODS));
-          appState.tasks = Array.isArray(parsed.tasks) ? parsed.tasks : [];
-          saveState();
-          renderTimetable();
-          renderTasks();
-          updateHeaderDate();
-          closeBackupModal();
-          showToast('データを正常に復元しました！');
+        if (!text) {
+          alert('コードを入力してください。');
+          return;
         }
+        const parsed = JSON.parse(text);
+        const normalized = normalizeStateData(parsed);
+
+        if (!normalized) {
+          throw new Error('Invalid format');
+        }
+
+        // Apply state fully
+        appState = normalized;
+
+        // Save immediately to persistent storage
+        saveState();
+
+        // Force full re-render of both Timetable and Tasks
+        renderTimetable();
+        renderTasks();
+        updateHeaderDate();
+
+        closeBackupModal();
+        showToast('データを正常に反映・復元しました！');
       } catch (e) {
-        alert('無効なJSONコードです。貼り付けた内容をご確認ください。');
+        console.error('Restore error:', e);
+        alert('コードの解析に失敗しました。貼り付けたJSONコードの形式をご確認ください。');
       }
     }
 
