@@ -727,60 +727,84 @@
     </div>
   </div>
 
-  <!-- MODAL: Silent Photo Camera (NEW) -->
-  <div id="cameraModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl overflow-hidden border border-slate-100 p-5 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <div class="flex items-center gap-2">
-          <div class="w-7 h-7 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-xs">
+  <!-- MODAL: Silent Photo Camera (Large Screen + Zoom) -->
+  <div id="cameraModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden items-center justify-center p-2 sm:p-4">
+    <div class="bg-slate-900 text-white w-full max-w-4xl h-[92vh] rounded-3xl shadow-2xl overflow-hidden border border-slate-800 flex flex-col justify-between p-3 sm:p-5">
+      
+      <!-- Top Header -->
+      <div class="flex items-center justify-between pb-2.5 border-b border-slate-800 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           </div>
           <div>
-            <h3 class="text-sm font-bold text-slate-800">無音カメラ</h3>
-            <p class="text-[10px] text-slate-400">シャッター音なしで黒板やスライドを記録</p>
+            <h3 class="text-sm sm:text-base font-bold text-white leading-tight">無音カメラ</h3>
+            <p class="text-[10px] sm:text-xs text-slate-400">大画面・ズーム対応（シャッター音なし）</p>
           </div>
         </div>
-        <button type="button" onclick="closeCameraModal()" class="text-slate-400 hover:text-slate-600">✕</button>
+        <button type="button" onclick="closeCameraModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 flex items-center justify-center transition">✕</button>
       </div>
 
-      <!-- Live Video / Captured Photo Viewport -->
-      <div class="relative w-full aspect-[4/3] bg-slate-900 rounded-2xl overflow-hidden flex items-center justify-center border border-slate-200">
-        <video id="silentCameraVideo" class="w-full h-full object-cover" playsinline muted></video>
+      <!-- Main Large Viewport -->
+      <div class="relative flex-1 my-2.5 bg-black rounded-2xl overflow-hidden flex items-center justify-center border border-slate-800">
+        <video id="silentCameraVideo" class="w-full h-full object-contain transition-transform duration-75 origin-center" playsinline muted></video>
         <img id="silentCameraPreview" class="hidden w-full h-full object-contain bg-black" alt="撮影プレビュー">
         <canvas id="silentCameraCanvas" class="hidden"></canvas>
-        <div id="silentCameraStatus" class="absolute bottom-3 left-3 right-3 bg-slate-900/75 backdrop-blur-xs text-white text-[11px] font-medium py-1 px-3 rounded-full text-center">
+        
+        <div id="silentCameraStatus" class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-slate-900/80 backdrop-blur-xs text-white text-xs font-medium py-1.5 px-4 rounded-full text-center border border-slate-700">
           カメラを起動中...
+        </div>
+
+        <!-- Zoom Badge Indicator -->
+        <div id="zoomIndicatorBadge" class="absolute top-3 right-3 bg-black/60 backdrop-blur-xs text-white text-xs font-mono font-bold px-2.5 py-1 rounded-full border border-white/15">
+          1.0x
         </div>
       </div>
 
       <!-- Controls when Live Streaming -->
-      <div id="cameraLiveControls" class="flex items-center justify-between gap-2 pt-1">
-        <button type="button" onclick="switchSilentCameraFacing()" class="py-2.5 px-3 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition active:scale-95">
-          🔄 カメラ切替
-        </button>
-        <button type="button" onclick="takeSilentPhoto()" class="flex-1 py-2.5 px-4 rounded-xl bg-brand-600 text-white text-xs font-bold hover:bg-brand-700 transition shadow-sm active:scale-95 flex items-center justify-center gap-1.5">
-          <span>📸 無音で撮影する</span>
-        </button>
+      <div id="cameraLiveControls" class="space-y-3 pt-1 shrink-0">
+        <!-- Zoom Slider & Quick Buttons -->
+        <div class="flex items-center gap-2 sm:gap-3 bg-slate-800/90 px-3.5 py-2 rounded-2xl border border-slate-700/80">
+          <span class="text-[11px] font-bold text-slate-300 shrink-0">🔍 ズーム</span>
+          <input id="cameraZoomSlider" type="range" min="1" max="5" step="0.1" value="1" oninput="onCameraZoomChange(this.value)" class="flex-1 accent-indigo-500 h-1.5 bg-slate-700 rounded-lg cursor-pointer">
+          <div class="flex gap-1 shrink-0">
+            <button type="button" onclick="onCameraZoomChange(1)" class="px-2 py-1 rounded-lg text-[10px] font-bold bg-slate-700 hover:bg-slate-600 text-white transition">1x</button>
+            <button type="button" onclick="onCameraZoomChange(2)" class="px-2 py-1 rounded-lg text-[10px] font-bold bg-slate-700 hover:bg-slate-600 text-white transition">2x</button>
+            <button type="button" onclick="onCameraZoomChange(3)" class="px-2 py-1 rounded-lg text-[10px] font-bold bg-slate-700 hover:bg-slate-600 text-white transition">3x</button>
+            <button type="button" onclick="onCameraZoomChange(5)" class="px-2 py-1 rounded-lg text-[10px] font-bold bg-slate-700 hover:bg-slate-600 text-white transition">5x</button>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-between gap-3">
+          <button type="button" onclick="switchSilentCameraFacing()" class="py-3 px-4 rounded-2xl bg-slate-800 text-slate-200 text-xs sm:text-sm font-bold hover:bg-slate-700 transition active:scale-95 border border-slate-700">
+            🔄 カメラ切替
+          </button>
+          <button type="button" onclick="takeSilentPhoto()" class="flex-1 py-3 px-6 rounded-2xl bg-brand-600 text-white text-sm sm:text-base font-bold hover:bg-brand-500 transition shadow-lg active:scale-95 flex items-center justify-center gap-2">
+            <span>📸 無音で撮影する</span>
+          </button>
+        </div>
       </div>
 
       <!-- Controls after Photo Captured -->
-      <div id="cameraCapturedControls" class="hidden space-y-2 pt-1">
-        <p class="text-[10px] text-slate-400 text-center">※iPhoneは上の画像を長押しして「"写真"に保存」も選べます</p>
-        <div class="flex gap-2">
-          <button type="button" onclick="retakeSilentPhoto()" class="flex-1 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition">
+      <div id="cameraCapturedControls" class="hidden space-y-2.5 pt-1 shrink-0">
+        <p class="text-[11px] text-slate-400 text-center">※iPhone・iPadは上の画像を長押しして「"写真"に保存」も選べます</p>
+        <div class="flex gap-3">
+          <button type="button" onclick="retakeSilentPhoto()" class="flex-1 py-3 rounded-2xl bg-slate-800 text-slate-200 text-xs sm:text-sm font-bold hover:bg-slate-700 transition border border-slate-700">
             撮り直す
           </button>
-          <a id="downloadSilentPhotoBtn" href="#" download="photo.jpg" class="flex-1 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold text-center hover:bg-emerald-700 transition shadow-sm">
+          <a id="downloadSilentPhotoBtn" href="#" download="photo.jpg" class="flex-1 py-3 rounded-2xl bg-emerald-600 text-white text-xs sm:text-sm font-bold text-center hover:bg-emerald-500 transition shadow-lg">
             画像を保存
           </a>
         </div>
       </div>
+
     </div>
   </div>
-
+  
   <!-- Toast Element -->
   <div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 hidden bg-slate-800 text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg">
     通知メッセージ
@@ -2170,10 +2194,12 @@
     }
 
     // ========================================================
-    // --- SILENT PHOTO CAMERA SYSTEM (NEW) ---
+    // --- SILENT PHOTO CAMERA SYSTEM (LARGE + HYBRID ZOOM) ---
     // ========================================================
     let silentCamStream = null;
     let silentCamFacing = 'environment';
+    let currentCamZoom = 1.0;
+    let supportsHardwareZoom = false;
 
     function openCameraModal() {
       const m = document.getElementById('cameraModal');
@@ -2196,13 +2222,23 @@
       const statusEl = document.getElementById('silentCameraStatus');
       const liveControls = document.getElementById('cameraLiveControls');
       const capturedControls = document.getElementById('cameraCapturedControls');
+      const zoomBadge = document.getElementById('zoomIndicatorBadge');
 
       video.classList.remove('hidden');
       preview.classList.add('hidden');
       liveControls.classList.remove('hidden');
       capturedControls.classList.add('hidden');
+      zoomBadge.classList.remove('hidden');
       statusEl.textContent = 'カメラを起動中...';
       statusEl.classList.remove('hidden');
+
+      // Reset zoom to 1.0x
+      currentCamZoom = 1.0;
+      supportsHardwareZoom = false;
+      const slider = document.getElementById('cameraZoomSlider');
+      if (slider) slider.value = 1;
+      video.style.transform = 'scale(1)';
+      zoomBadge.textContent = '1.0x';
 
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         statusEl.textContent = 'お使いのブラウザはカメラ機能に非対応です';
@@ -2210,20 +2246,64 @@
       }
 
       try {
+        // Request highest possible resolution (up to 4K) so digital zoom stays sharp
         silentCamStream = await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: { ideal: silentCamFacing },
-            width: { ideal: 1920 },
-            height: { ideal: 1080 }
+            width: { ideal: 3840 },
+            height: { ideal: 2160 }
           },
           audio: false
         });
         video.srcObject = silentCamStream;
         await video.play();
         statusEl.classList.add('hidden');
+
+        // Check if device browser supports native hardware zoom
+        const track = silentCamStream.getVideoTracks()[0];
+        if (track && typeof track.getCapabilities === 'function') {
+          const caps = track.getCapabilities();
+          if (caps && 'zoom' in caps) {
+            supportsHardwareZoom = true;
+          }
+        }
       } catch (err) {
         console.error('Silent camera error:', err);
         statusEl.textContent = 'カメラへのアクセスを許可してください';
+      }
+    }
+
+    function onCameraZoomChange(val) {
+      const zoom = parseFloat(val) || 1.0;
+      currentCamZoom = zoom;
+
+      const slider = document.getElementById('cameraZoomSlider');
+      if (slider && parseFloat(slider.value) !== zoom) {
+        slider.value = zoom;
+      }
+
+      const badge = document.getElementById('zoomIndicatorBadge');
+      if (badge) {
+        badge.textContent = zoom.toFixed(1) + 'x';
+      }
+
+      const video = document.getElementById('silentCameraVideo');
+
+      // Use hardware zoom if supported, otherwise apply smooth CSS scale preview
+      if (supportsHardwareZoom && silentCamStream) {
+        const track = silentCamStream.getVideoTracks()[0];
+        if (track) {
+          track.applyConstraints({ advanced: [{ zoom: zoom }] }).catch(() => {
+            supportsHardwareZoom = false;
+            if (video) video.style.transform = `scale(${zoom})`;
+          });
+          if (video) video.style.transform = 'scale(1)';
+          return;
+        }
+      }
+
+      if (video) {
+        video.style.transform = `scale(${zoom})`;
       }
     }
 
@@ -2233,7 +2313,10 @@
         silentCamStream = null;
       }
       const video = document.getElementById('silentCameraVideo');
-      if (video) video.srcObject = null;
+      if (video) {
+        video.srcObject = null;
+        video.style.transform = 'scale(1)';
+      }
     }
 
     function switchSilentCameraFacing() {
@@ -2246,18 +2329,31 @@
       const canvas = document.getElementById('silentCameraCanvas');
       const preview = document.getElementById('silentCameraPreview');
       const downloadBtn = document.getElementById('downloadSilentPhotoBtn');
+      const zoomBadge = document.getElementById('zoomIndicatorBadge');
 
       if (!video.videoWidth || !video.videoHeight) {
         showToast('カメラの準備ができていません');
         return;
       }
 
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+      const vw = video.videoWidth;
+      const vh = video.videoHeight;
+      canvas.width = vw;
+      canvas.height = vh;
       const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+      if (supportsHardwareZoom || currentCamZoom <= 1.0) {
+        ctx.drawImage(video, 0, 0, vw, vh);
+      } else {
+        // Digital zoom crop: extract the zoomed center region and scale to full canvas
+        const cropW = vw / currentCamZoom;
+        const cropH = vh / currentCamZoom;
+        const cropX = (vw - cropW) / 2;
+        const cropY = (vh - cropH) / 2;
+        ctx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, vw, vh);
+      }
+
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.94);
       preview.src = dataUrl;
       downloadBtn.href = dataUrl;
 
@@ -2268,6 +2364,7 @@
       stopSilentCamera();
       video.classList.add('hidden');
       preview.classList.remove('hidden');
+      zoomBadge.classList.add('hidden');
       document.getElementById('cameraLiveControls').classList.add('hidden');
       document.getElementById('cameraCapturedControls').classList.remove('hidden');
       showToast('無音で撮影しました');
@@ -2276,7 +2373,7 @@
     function retakeSilentPhoto() {
       startSilentCamera();
     }
-
+    
     // --- HELP MODAL ---
     function openHelpModal() {
       const m = document.getElementById('helpModal');
